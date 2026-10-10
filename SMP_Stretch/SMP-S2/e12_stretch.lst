@@ -1,0 +1,1493 @@
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+e12_stretch.asm  Page 1
+
+
+
+1                          ; SMP-S2: internal (E12) sample playback with a lo-fi
+ splice time-stretch.
+2                          ; The engine is shared with SMP-ST (rom_stretch); see
+ stretch_engine.inc.
+3         000000           BANK_ID   equ     0                                 ;
+ SAMPLE_INFO / SAMPLE_READ bank: INTERNAL
+4                                    include 'stretch_engine.inc'
+5                          ; Shared engine of SMP-ST (UW ROM) and SMP-T2 (intern
+al E12 samples): sample
+6                          ; playback with a lo-fi splice time-stretch (S950 sty
+le). The wrapper defines
+7                          ; BANK_ID, the SAMPLE_INFO / SAMPLE_READ bank: 0 inte
+rnal, 1 UW ROM, or -1 for
+8                          ; both: SMPL 0..UW_SLOTS-1 are UW ROM slots, the sett
+ings after them internal
+9                          ; slots (the wrapper then also defines UW_SLOTS).
+10                         ;
+11                         ; One grain plays at a time. A playhead moves through
+ the sample, slowed by TIME.
+12                         ; Every GRAN output samples, on a 32-sample block bou
+ndary, a new grain starts
+13                         ; near the playhead, centred on it and offset by a ra
+ndom FLUX amount, and the
+14                         ; two grains crossfade over the next 4 blocks (128 sa
+mples). The splice is
+15                         ; worked out at the end of an ordinary block, and PTC
+H and TIME are re-read
+16                         ; only outside crossfades, which keeps the crossfade 
+blocks (two sample reads)
+17                         ; inside the cycle budget. PTCH sets the grain read r
+ate, so time and pitch are
+18                         ; independent. Grains read straight on past the windo
+w (no wrapping); a grain
+19                         ; about to run out of the window splices back to the 
+playhead early. The voice
+20                         ; fades out over 4 blocks when the playhead reaches E
+ND; TIME 127 freezes it.
+21                         ; DEC decays the level; 127 holds it.
+22                         ;
+23                         ; END before STRT plays the sample in reverse, from S
+TRT back to END. The
+24                         ; engine always runs forwards through the window lo..
+hi; in reverse, POSGEN
+25                         ; reads at floor(lo + hi - 1 - p) instead of floor(p)
+.
+26                         ;
+27                         ; Parameters, Y:(r6+1..8):
+28                         ;   1 PTCH  raw14 bipolar  (setting - 64) / 2 semiton
+es: -32..+32, 1/256 steps between
+29                         ;   2 SMPL  index          slot in the bank: UW 0..47
+, internal 0..20 (latched at TRIG)
+30                         ;   3 DEC   raw14          decay, 60 dB in 0.03..30 s
+; 127 = no decay
+31                         ;   4 TIME  raw14          playhead slow-down from a 
+table: 0 normal, 42 half, 127 frozen
+32                         ;   5 STRT  unipolar Q23   start as a fraction of the
+ sample; 127 = its end (latched)
+33                         ;   6 END   unipolar Q23   end as a fraction; 127 = w
+hole sample (latched)
+34                         ;   7 GRAN  squared Q23    grain length 300 + 4776*s 
+output samples (300..5000)
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 2
+
+
+
+35                         ;   8 FLUX  unipolar Q23   jitter: position up to +-0
+.75 grain, length +-37.5%
+36                         ;
+37                         ; Persistent Y state (Y+9: the latched bank when BANK
+_ID is -1, otherwise unused):
+38                         ;  10 active  11/12 grain position int/frac  13/14 pl
+ayhead int/frac
+39                         ;  15 lo  16 hi  17 hi-lo  18 native step (Q16.16)  1
+9 samples to next splice
+40                         ;  20 gain reached at the end of the last block  21 r
+andom seed  22 slot
+41                         ;  23 reverse  24 lo + hi - 1  25 decay envelope  26 
+end fade step (0 = none, 1..4)
+42                         ;  27 crossfade step (0 = none, 1..4)  28/29 old grai
+n position int/frac
+43                         ; Rates, recomputed in every block outside a crossfad
+e:
+44                         ;  30/31 grain rate (24.24)  32 grain rate * 2^17  49
+/50 twice the grain rate
+45                         ;  35/36 playhead step per block (24.24)  37 playhead
+ rate * 2^17
+46                         ; Y scratch within one RENDER (services clobber most 
+registers):
+47                         ;  33 PTCH fraction  34 octave + 6  38/39 gain at blo
+ck start/end
+48                         ;  40/41 old grain gain start/step  42/43 new grain g
+ain start/step
+49                         ;  44 K  45 GRAN  46 64 * GRAN  47 J  48 centring
+50     
+51        000001           P_PTCH    equ     1
+52        000002           P_SMPL    equ     2
+53        000003           P_DEC     equ     3
+54        000004           P_TIME    equ     4
+55        000005           P_STRT    equ     5
+56        000006           P_END     equ     6
+57        000007           P_GRAN    equ     7
+58        000008           P_FLUX    equ     8
+59        000009           S_BANK    equ     9
+60        00000A           S_ACT     equ     10
+61        00000B           S_GI      equ     11
+62        00000C           S_GF      equ     12
+63        00000D           S_PI      equ     13
+64        00000E           S_PF      equ     14
+65        00000F           S_LO      equ     15
+66        000010           S_HI      equ     16
+67        000011           S_WIN     equ     17
+68        000012           S_STEP    equ     18
+69        000013           S_CNT     equ     19
+70        000014           S_GAIN    equ     20
+71        000015           S_SEED    equ     21
+72        000016           S_SLOT    equ     22
+73        000017           S_REV     equ     23
+74        000018           S_MIR     equ     24
+75        000019           S_ENV     equ     25
+76        00001A           S_REL     equ     26
+77        00001B           S_FADE    equ     27
+78        00001C           S_OGI     equ     28
+79        00001D           S_OGF     equ     29
+80        00001E           T_RGI     equ     30
+81        00001F           T_RGF     equ     31
+82        000020           T_RQ      equ     32
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 3
+
+
+
+83        000021           T_F       equ     33
+84        000022           T_OCT     equ     34
+85        000023           T_VBI     equ     35
+86        000024           T_VBF     equ     36
+87        000025           T_RPQ     equ     37
+88        000026           T_G0      equ     38
+89        000027           T_G1      equ     39
+90        000028           T_CO0     equ     40
+91        000029           T_COS     equ     41
+92        00002A           T_CN0     equ     42
+93        00002B           T_CNS     equ     43
+94        00002C           T_K       equ     44
+95        00002D           T_GRAN    equ     45
+96        00002E           T_L64     equ     46
+97        00002F           T_J       equ     47
+98        000030           T_CTR     equ     48
+99        000031           T_R2I     equ     49
+100       000032           T_R2F     equ     50
+101    
+102       000040           MIN_WIN   equ     64                                ;
+ shortest STRT..END window in frames
+103       000040           ENV_OFF   equ     $000040                           ;
+ envelope level treated as silent (about -100 dB)
+104       2A5B3D           SEED0     equ     $2a5b3d                           ;
+ random seed of track 0
+105    
+106                                  section ROM_STRETCH
+107                        INIT:
+108       P:000000 05F426            movec             #>$ffffff,m6
+                   FFFFFF
+109       P:000002 200013            clr     a
+**** 110 [stretch_engine.inc 106]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 110 [stretch_engine.inc 106]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:000000 (X data move field)
+110       P:000003 022EAE            move                          a,y:(r6+S_ACT
+)
+111       P:000004 0256AE            move                          a,y:(r6+S_GAI
+N)
+112       P:000005 024EEE            move                          a,y:(r6+S_CNT
+)
+113       P:000006 026EAE            move                          a,y:(r6+S_REL
+)
+114       P:000007 026EEE            move                          a,y:(r6+S_FAD
+E)
+115       P:000008 222E00            move              r1,a                    ;
+ a different random sequence on every track
+**** 116 [stretch_engine.inc 112]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+116       P:000009 44F400            move              #>SEED0,x0
+                   2A5B3D
+117       P:00000B 200040            add     x0,a
+**** 118 [stretch_engine.inc 114]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 118 [stretch_engine.inc 114]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+118       P:00000C 0256EC            move                          a1,y:(r6+S_SE
+ED)
+**** 119 [stretch_engine.inc 115]: WARNING --- Instruction cannot appear in inte
+rrupt vector locations (Opcode field)
+119       P:00000D 00000C            rts
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 4
+
+
+
+120    
+121                        TRIG:
+122       P:00000E 05F426            movec             #>$ffffff,m6
+                   FFFFFF
+123                                  if      BANK_ID<0
+137                                  else
+**** 138 [stretch_engine.inc 134]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:00000E (X data move field)
+138       P:000010 020EB6            move                          y:(r6+P_SMPL)
+,y0
+139       P:000011 025EA6            move                          y0,y:(r6+S_SL
+OT)
+140       P:000012 44F400            move              #>BANK_ID,x0
+                   000000
+141                                  endif
+142                        TRIG_INFO:
+143       P:000014 0BF080            jsr     >$000000                          ;
+ kind 5 / SAMPLE_INFO: A1 length, B1 Q16.16 step
+                   000000
+144       P:000016 200003            tst     a
+**** 145 [stretch_engine.inc 141]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+145       P:000017 0D104A            beq     TRIG_EMPTY
+                   000038
+146       P:000019 20000B            tst     b
+147       P:00001A 0D104A            beq     TRIG_EMPTY
+                   000035
+148       P:00001C 024EAD            move                          b1,y:(r6+S_ST
+EP)
+149       P:00001D 218400            move              a1,x0                   ;
+ length
+150       P:00001E 0216F6            move                          y:(r6+P_STRT)
+,y0
+**** 151 [stretch_engine.inc 147]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+151       P:00001F 0D1080            bsr     FRAME_AT
+                   000033
+152       P:000021 023EED            move                          b1,y:(r6+S_LO
+) ; start frame
+153       P:000022 021EB6            move                          y:(r6+P_END),
+y0
+**** 154 [stretch_engine.inc 150]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+154       P:000023 0D1080            bsr     FRAME_AT
+                   00002F
+155       P:000025 0246AD            move                          b1,y:(r6+S_HI
+) ; end frame
+156       P:000026 023EF7            move                          y:(r6+S_LO),y
+1
+157       P:000027 200013            clr     a                                 ;
+ forwards ...
+158       P:000028 20007D            cmp     y1,b
+**** 159 [stretch_engine.inc 155]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+159       P:000029 0D1041            bge     TRIG_DIR
+                   000006
+160       P:00002B 023EED            move                          b1,y:(r6+S_LO
+) ; ... unless END is before STRT: the window
+161       P:00002C 0246A7            move                          y1,y:(r6+S_HI
+) ; is END..STRT, played from its top down
+**** 162 [stretch_engine.inc 158]: WARNING --- Two-word instruction assembled at
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 5
+
+
+
+ odd address in interrupt vector locations (Opcode field)
+162       P:00002D 56F400            move              #>1,a
+                   000001
+163                        TRIG_DIR:
+**** 164 [stretch_engine.inc 160]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+164       P:00002F 025EEC            move                          a1,y:(r6+S_RE
+V)
+165       P:000030 023EF7            move                          y:(r6+S_LO),y
+1
+166       P:000031 022EE7            move                          y1,y:(r6+S_GI
+)
+167       P:000032 0236E7            move                          y1,y:(r6+S_PI
+)
+168       P:000033 0246BF            move                          y:(r6+S_HI),b
+169       P:000034 200078            add     y1,b
+170       P:000035 01418C            sub     #1,b
+**** 171 [stretch_engine.inc 167]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 171 [stretch_engine.inc 167]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+171       P:000036 0266AD            move                          b1,y:(r6+S_MI
+R)
+172       P:000037 0246BF            move                          y:(r6+S_HI),b
+173       P:000038 20007C            sub     y1,b
+**** 174 [stretch_engine.inc 170]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 174 [stretch_engine.inc 170]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+174       P:000039 0246ED            move                          b1,y:(r6+S_WI
+N)
+175       P:00003A 47F400            move              #>MIN_WIN,y1
+                   000040
+176       P:00003C 20007D            cmp     y1,b
+**** 177 [stretch_engine.inc 173]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+177       P:00003D 0D1049            blt     TRIG_EMPTY                        ;
+ STRT and END too close together
+                   000012
+178       P:00003F 200013            clr     a
+**** 179 [stretch_engine.inc 175]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 179 [stretch_engine.inc 175]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+179       P:000040 0236AE            move                          a,y:(r6+S_GF)
+180       P:000041 023EAE            move                          a,y:(r6+S_PF)
+181       P:000042 026EAE            move                          a,y:(r6+S_REL
+)
+182       P:000043 026EEE            move                          a,y:(r6+S_FAD
+E)
+183       P:000044 0D1080            bsr     GRAN_LEN
+                   0001AF
+184       P:000046 024EEC            move                          a1,y:(r6+S_CN
+T) ; the first grain has no length jitter
+**** 185 [stretch_engine.inc 181]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+185       P:000047 56F400            move              #>$7fffff,a
+                   7FFFFF
+**** 186 [stretch_engine.inc 182]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+186       P:000049 0266EE            move                          a,y:(r6+S_ENV
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 6
+
+
+
+)
+187       P:00004A 0256AE            move                          a,y:(r6+S_GAI
+N)
+**** 188 [stretch_engine.inc 184]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+188       P:00004B 56F400            move              #>1,a
+                   000001
+**** 189 [stretch_engine.inc 185]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+189       P:00004D 022EAE            move                          a,y:(r6+S_ACT
+)
+**** 190 [stretch_engine.inc 186]: WARNING --- Instruction cannot appear in inte
+rrupt vector locations (Opcode field)
+190       P:00004E 00000C            rts
+191                        TRIG_EMPTY:
+192       P:00004F 200013            clr     a
+**** 193 [stretch_engine.inc 189]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 193 [stretch_engine.inc 189]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+193       P:000050 022EAE            move                          a,y:(r6+S_ACT
+)
+**** 194 [stretch_engine.inc 190]: WARNING --- Instruction cannot appear in inte
+rrupt vector locations (Opcode field)
+194       P:000051 00000C            rts
+195    
+196                        ; B1 = floor(length X0 * fraction Y0), or the whole l
+ength at setting 127. Keeps X0.
+197                        FRAME_AT:
+198       P:000052 2000D8            mpy     x0,y0,b
+**** 199 [stretch_engine.inc 195]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 199 [stretch_engine.inc 195]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+199       P:000053 21AF00            move              b1,b
+200       P:000054 47F400            move              #>$7f0000,y1
+                   7F0000
+201       P:000056 20CE00            move              y0,a
+202       P:000057 200075            cmp     y1,a
+203       P:000058 202149            tfr     x0,b      ifge
+**** 204 [stretch_engine.inc 200]: WARNING --- Instruction cannot appear in inte
+rrupt vector locations (Opcode field)
+204       P:000059 00000C            rts
+205    
+206                        RENDER:
+207       P:00005A 05F426            movec             #>$ffffff,m6
+                   FFFFFF
+**** 208 [stretch_engine.inc 204]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:00005A (X data move field)
+208       P:00005C 022EBE            move                          y:(r6+S_ACT),
+a
+209       P:00005D 200003            tst     a
+210       P:00005E 0D104A            beq     SILENCE
+                   000142
+211       P:000060 0D1080            bsr     TBASE
+                   000145
+212                                                                            ;
+ Rates are recomputed outside crossfades only: a crossfade (the costliest
+213                                                                            ;
+ block, two sample reads) keeps the rates its splice was computed with.
+214       P:000062 026EFE            move                          y:(r6+S_FADE)
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 7
+
+
+
+,a
+215       P:000063 200003            tst     a
+216       P:000064 0D1042            bne     R_RATES_DONE
+                   000055
+217    
+218                                                                            ;
+ ---- grain rate = step * 2^(PTCH/12): semitone table plus octave shift ----
+219       P:000066 0206FE            move                          y:(r6+P_PTCH)
+,a
+**** 220 [stretch_engine.inc 216]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+220       P:000067 44F400            move              #>8192,x0               ;
+ setting 64 = no shift
+                   002000
+221       P:000069 200044            sub     x0,a
+222       P:00006A 200022            asr     a                                 ;
+ half a semitone per setting step
+**** 223 [stretch_engine.inc 219]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+223       P:00006B 44F400            move              #>4095,x0
+                   000FFF
+224       P:00006D 200045            cmp     x0,a
+225       P:00006E 202741            tfr     x0,a      ifgt
+**** 226 [stretch_engine.inc 222]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+226       P:00006F 44F400            move              #>$fff000,x0            ;
+ -4096
+                   FFF000
+227       P:000071 200045            cmp     x0,a
+228       P:000072 202941            tfr     x0,a      iflt
+229       P:000073 200009            tfr     a,b
+230       P:000074 0C1C8F            asr     #7,b,b                            ;
+ whole semitones s, -32..31
+**** 231 [stretch_engine.inc 227]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+231       P:000075 0140C6            and     #>$7f,a                           ;
+ 1/128-semitone steps ...
+                   00007F
+232       P:000077 0C1EA0            lsl     #16,a                             ;
+ ... as a Q23 fraction
+**** 233 [stretch_engine.inc 229]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+233       P:000078 0286EC            move                          a1,y:(r6+T_F)
+**** 234 [stretch_engine.inc 230]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+234       P:000079 44F400            move              #>72,x0
+                   000048
+235       P:00007B 200048            add     x0,b                              ;
+ t = s + 72, 8..135
+**** 236 [stretch_engine.inc 232]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 236 [stretch_engine.inc 232]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+236       P:00007C 21A500            move              b1,x1
+**** 237 [stretch_engine.inc 233]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+237       P:00007D 46F400            move              #>$0aaaab,y0            ;
+ 1/12, rounded up
+                   0AAAAB
+238       P:00007F 2000E0            mpy     x1,y0,a                           ;
+ A1 = t / 12, the octave + 6
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 8
+
+
+
+**** 239 [stretch_engine.inc 235]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 239 [stretch_engine.inc 235]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+239       P:000080 028EAC            move                          a1,y:(r6+T_OC
+T)
+240       P:000081 218E00            move              a1,a
+241       P:000082 0C1D04            asl     #2,a,a
+**** 242 [stretch_engine.inc 238]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+242       P:000083 218700            move              a1,y1
+243       P:000084 0C1D02            asl     #1,a,a
+244       P:000085 200070            add     y1,a                              ;
+ 12 * octave
+245       P:000086 20AF00            move              x1,b
+246       P:000087 20001C            sub     a,b                               ;
+ semitone within the octave, 0..11
+**** 247 [stretch_engine.inc 243]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 247 [stretch_engine.inc 243]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+247       P:000088 21BC00            move              b1,n4
+**** 248 [stretch_engine.inc 244]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:000088 (Operand field)
+248       P:000089 044C10            lua     (r4)+n4,r0
+**** 249 [stretch_engine.inc 245]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:000089 (X data move field)
+249       P:00008A 07D884            movem             p:(r0)+,x0              ;
+ 2^(n/12)/4
+250       P:00008B 07E085            movem             p:(r0),x1               ;
+ one semitone higher
+251       P:00008C 20AF00            move              x1,b
+252       P:00008D 20004C            sub     x0,b
+**** 253 [stretch_engine.inc 249]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 253 [stretch_engine.inc 249]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+253       P:00008E 21A700            move              b1,y1
+254       P:00008F 0286F6            move                          y:(r6+T_F),y0
+255       P:000090 2000B8            mpy     y0,y1,b
+256       P:000091 200048            add     x0,b
+257       P:000092 024EB4            move                          y:(r6+S_STEP)
+,x0
+258       P:000093 21A600            move              b1,y0
+259       P:000094 2000D0            mpy     x0,y0,a                           ;
+ A1:A0 = step * 2^(n/12) / 4 * 2^40
+260       P:000095 028EB4            move                          y:(r6+T_OCT),
+x0
+261       P:000096 57F400            move              #>20,b
+                   000014
+262       P:000098 20004C            sub     x0,b
+**** 263 [stretch_engine.inc 259]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 263 [stretch_engine.inc 259]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+263       P:000099 21A400            move              b1,x0
+264       P:00009A 0C1E68            asr     x0,a,a                            ;
+ shift by 20 - (octave + 6): 24.24 frames/sample
+**** 265 [stretch_engine.inc 261]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+265       P:00009B 027EAC            move                          a1,y:(r6+T_RG
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 9
+
+
+
+I)
+266       P:00009C 027EE8            move                          a0,y:(r6+T_RG
+F)
+267       P:00009D 200009            tfr     a,b
+268       P:00009E 0C1DA3            asl     #17,b,b
+**** 269 [stretch_engine.inc 265]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+269       P:00009F 0286AD            move                          b1,y:(r6+T_RQ
+)
+270       P:0000A0 200032            asl     a
+**** 271 [stretch_engine.inc 267]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+271       P:0000A1 02C6EC            move                          a1,y:(r6+T_R2
+I) ; twice the grain rate, for POSGEN
+272       P:0000A2 02CEA8            move                          a0,y:(r6+T_R2
+F)
+273    
+274                                                                            ;
+ ---- playhead step per block = 32 * step * speed / 8192, with speed
+275                                                                            ;
+ from the TIME table: 8192 at 0 (normal), 4096 at 42, 0 at 127 ----
+276       P:0000A3 0216BE            move                          y:(r6+P_TIME)
+,a
+277       P:0000A4 0C1C0E            asr     #7,a,a
+**** 278 [stretch_engine.inc 274]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+278       P:0000A5 44F400            move              #>127,x0
+                   00007F
+279       P:0000A7 200045            cmp     x0,a
+280       P:0000A8 202741            tfr     x0,a      ifgt
+281       P:0000A9 240000            move              #0,x0
+282       P:0000AA 200045            cmp     x0,a
+283       P:0000AB 202941            tfr     x0,a      iflt
+284       P:0000AC 44F400            move              #>TB_SPEED,x0
+                   000092
+285       P:0000AE 200040            add     x0,a
+**** 286 [stretch_engine.inc 282]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 286 [stretch_engine.inc 282]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+286       P:0000AF 219C00            move              a1,n4
+**** 287 [stretch_engine.inc 283]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:0000AF (Operand field)
+287       P:0000B0 044C10            lua     (r4)+n4,r0
+**** 288 [stretch_engine.inc 284]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:0000B0 (X data move field)
+288       P:0000B1 07E086            movem             p:(r0),y0
+289       P:0000B2 024EB4            move                          y:(r6+S_STEP)
+,x0
+290       P:0000B3 2000D0            mpy     x0,y0,a
+291       P:0000B4 200022            asr     a
+**** 292 [stretch_engine.inc 288]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+292       P:0000B5 028EEC            move                          a1,y:(r6+T_VB
+I)
+293       P:0000B6 0296A8            move                          a0,y:(r6+T_VB
+F)
+294       P:0000B7 0C1D18            asl     #12,a,a
+**** 295 [stretch_engine.inc 291]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+295       P:0000B8 0296EC            move                          a1,y:(r6+T_RP
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 10
+
+
+
+Q) ; playhead rate per sample * 2^17
+296                        R_RATES_DONE:
+297    
+298                                                                            ;
+ ---- end fade: starts when the playhead reaches hi ----
+299       P:0000B9 026EBE            move                          y:(r6+S_REL),
+a
+300       P:0000BA 200003            tst     a
+**** 301 [stretch_engine.inc 297]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+301       P:0000BB 0D1042            bne     R_REL_STEP
+                   000008
+302       P:0000BD 0246B7            move                          y:(r6+S_HI),y
+1
+303       P:0000BE 0236FE            move                          y:(r6+S_PI),a
+304       P:0000BF 200075            cmp     y1,a
+305       P:0000C0 0D1049            blt     R_REL_DONE
+                   000007
+306       P:0000C2 200013            clr     a
+307                        R_REL_STEP:
+**** 308 [stretch_engine.inc 304]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+308       P:0000C3 44F400            move              #>1,x0
+                   000001
+309       P:0000C5 200040            add     x0,a
+**** 310 [stretch_engine.inc 306]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 310 [stretch_engine.inc 306]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+310       P:0000C6 026EAC            move                          a1,y:(r6+S_RE
+L)
+311                        R_REL_DONE:
+312    
+313                                                                            ;
+ ---- level: decay envelope times the end fade ----
+314       P:0000C7 020EFE            move                          y:(r6+P_DEC),
+a
+315       P:0000C8 0C1C0E            asr     #7,a,a
+**** 316 [stretch_engine.inc 312]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+316       P:0000C9 44F400            move              #>127,x0
+                   00007F
+317       P:0000CB 200045            cmp     x0,a
+318       P:0000CC 202741            tfr     x0,a      ifgt
+319       P:0000CD 240000            move              #0,x0
+320       P:0000CE 200045            cmp     x0,a
+321       P:0000CF 202941            tfr     x0,a      iflt
+322       P:0000D0 44F400            move              #>TB_DECAY,x0
+                   000012
+323       P:0000D2 200040            add     x0,a
+**** 324 [stretch_engine.inc 320]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 324 [stretch_engine.inc 320]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+324       P:0000D3 219C00            move              a1,n4
+**** 325 [stretch_engine.inc 321]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:0000D3 (Operand field)
+325       P:0000D4 044C10            lua     (r4)+n4,r0
+**** 326 [stretch_engine.inc 322]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:0000D4 (X data move field)
+326       P:0000D5 07E086            movem             p:(r0),y0
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 11
+
+
+
+327       P:0000D6 0266F4            move                          y:(r6+S_ENV),
+x0
+328       P:0000D7 2000D0            mpy     x0,y0,a                           ;
+ envelope at the end of this block ...
+329       P:0000D8 45F400            move              #>$7fffff,x1
+                   7FFFFF
+330       P:0000DA 20CF00            move              y0,b
+331       P:0000DB 20006D            cmp     x1,b
+332       P:0000DC 202A41            tfr     x0,a      ifeq                    ;
+ ... held exactly at DEC 127
+**** 333 [stretch_engine.inc 329]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 333 [stretch_engine.inc 329]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+333       P:0000DD 0266EC            move                          a1,y:(r6+S_EN
+V)
+334       P:0000DE 45F400            move              #>ENV_OFF,x1
+                   000040
+335       P:0000E0 200065            cmp     x1,a
+**** 336 [stretch_engine.inc 332]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+336       P:0000E1 0D1041            bge     R_ENV_OK
+                   000004
+337       P:0000E3 20001B            clr     b                                 ;
+ decayed away: this is the last block
+**** 338 [stretch_engine.inc 334]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 338 [stretch_engine.inc 334]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+338       P:0000E4 022EAF            move                          b,y:(r6+S_ACT
+)
+339                        R_ENV_OK:
+340       P:0000E5 218400            move              a1,x0
+341       P:0000E6 026EBE            move                          y:(r6+S_REL),
+a
+**** 342 [stretch_engine.inc 338]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+342       P:0000E7 47F400            move              #>TB_QTR,y1
+                   00000D
+343       P:0000E9 200070            add     y1,a
+**** 344 [stretch_engine.inc 340]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 344 [stretch_engine.inc 340]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+344       P:0000EA 219C00            move              a1,n4
+**** 345 [stretch_engine.inc 341]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:0000EA (Operand field)
+345       P:0000EB 044C10            lua     (r4)+n4,r0
+**** 346 [stretch_engine.inc 342]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:0000EB (X data move field)
+346       P:0000EC 07E086            movem             p:(r0),y0
+347       P:0000ED 2000D0            mpy     x0,y0,a
+**** 348 [stretch_engine.inc 344]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 348 [stretch_engine.inc 344]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+348       P:0000EE 029EEC            move                          a1,y:(r6+T_G1
+)
+349       P:0000EF 0256B5            move                          y:(r6+S_GAIN)
+,x1
+350       P:0000F0 029EA5            move                          x1,y:(r6+T_G0
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 12
+
+
+
+)
+351       P:0000F1 0256AC            move                          a1,y:(r6+S_GA
+IN)
+352       P:0000F2 026EBE            move                          y:(r6+S_REL),
+a
+**** 353 [stretch_engine.inc 349]: WARNING --- Two-word instruction assembled at
+ odd address in interrupt vector locations (Opcode field)
+353       P:0000F3 44F400            move              #>4,x0
+                   000004
+354       P:0000F5 200045            cmp     x0,a
+355       P:0000F6 0D1049            blt     R_REL_OK
+                   000004
+356       P:0000F8 20001B            clr     b                                 ;
+ end fade complete: stop after this block
+**** 357 [stretch_engine.inc 353]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 357 [stretch_engine.inc 353]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+357       P:0000F9 022EAF            move                          b,y:(r6+S_ACT
+)
+358                        R_REL_OK:
+359    
+360                        R_COEF:
+361                                                                            ;
+ ---- per-grain gain ramps for this block ----
+362       P:0000FA 0D1080            bsr     TBASE
+                   0000AB
+363       P:0000FC 026EFE            move                          y:(r6+S_FADE)
+,a
+364       P:0000FD 200003            tst     a
+365       P:0000FE 0D104A            beq     R_COEF_PLAIN
+                   00001D
+366                                                                            ;
+ crossfade step j = FADE - 1: old grain G * (1 - j/4), new grain G * j/4
+367       P:000100 44F400            move              #>TB_QTR-1,x0
+                   00000C
+368       P:000102 200040            add     x0,a
+**** 369 [stretch_engine.inc 365]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 369 [stretch_engine.inc 365]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+369       P:000103 219C00            move              a1,n4
+**** 370 [stretch_engine.inc 366]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:000103 (Operand field)
+370       P:000104 044C10            lua     (r4)+n4,r0
+**** 371 [stretch_engine.inc 367]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:000104 (X data move field)
+371       P:000105 07D886            movem             p:(r0)+,y0
+372       P:000106 07E087            movem             p:(r0),y1
+373       P:000107 029EB4            move                          y:(r6+T_G0),x
+0
+374       P:000108 029EF5            move                          y:(r6+T_G1),x
+1
+375       P:000109 0D1080            bsr     COEF
+                   0000A1
+376       P:00010B 02A6AD            move                          b1,y:(r6+T_CO
+0)
+377       P:00010C 02A6EC            move                          a1,y:(r6+T_CO
+S)
+378       P:00010D 026EF4            move                          y:(r6+S_FADE)
+,x0
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 13
+
+
+
+379       P:00010E 56F400            move              #>TB_QTR+5,a
+                   000012
+380       P:000110 200044            sub     x0,a
+**** 381 [stretch_engine.inc 377]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 381 [stretch_engine.inc 377]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+381       P:000111 219C00            move              a1,n4
+**** 382 [stretch_engine.inc 378]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:000111 (Operand field)
+382       P:000112 044C10            lua     (r4)+n4,r0
+**** 383 [stretch_engine.inc 379]: WARNING --- Pipeline stall reading register w
+ritten in instruction at address: P:000112 (X data move field)
+383       P:000113 07D086            movem             p:(r0)-,y0
+384       P:000114 07E087            movem             p:(r0),y1
+385       P:000115 029EB4            move                          y:(r6+T_G0),x
+0
+386       P:000116 029EF5            move                          y:(r6+T_G1),x
+1
+387       P:000117 0D1080            bsr     COEF
+                   000093
+388       P:000119 0D10C0            bra     R_COEF_STORE
+                   000006
+389                        R_COEF_PLAIN:
+390       P:00011B 029EBF            move                          y:(r6+T_G0),b
+391       P:00011C 029EFE            move                          y:(r6+T_G1),a
+392       P:00011D 200014            sub     b,a
+393       P:00011E 0C1C0A            asr     #5,a,a
+394                        R_COEF_STORE:
+395       P:00011F 02AEAD            move                          b1,y:(r6+T_CN
+0)
+396       P:000120 02AEEC            move                          a1,y:(r6+T_CN
+S)
+397    
+398                                                                            ;
+ ---- crossfade blocks: the old grain, 32 frames, into the output ----
+399       P:000121 026EFE            move                          y:(r6+S_FADE)
+,a
+400       P:000122 200003            tst     a
+401       P:000123 0D104A            beq     R_NEW
+                   000016
+402       P:000125 0276BE            move                          y:(r6+S_OGI),
+a
+403       P:000126 0276F8            move                          y:(r6+S_OGF),
+a0
+404       P:000127 0D1080            bsr     POSGEN
+                   0000E0
+405       P:000129 0276AC            move                          a1,y:(r6+S_OG
+I)
+406       P:00012A 0276E8            move                          a0,y:(r6+S_OG
+F)
+407       P:00012B 382000            move              #32,n0
+408       P:00012C 0D1080            bsr     SREAD
+                   0000FA
+409       P:00012E 200003            tst     a
+410       P:00012F 0D104A            beq     SILENCE
+                   000071
+411                        PCM_A:
+412       P:000131 60F400            move              #>$000000,r0            ;
+ kind 3 / TEMP_X
+                   000000
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 14
+
+
+
+413       P:000133 05F420            movec             #>$ffffff,m0
+                   FFFFFF
+414       P:000135 02A6BF            move                          y:(r6+T_CO0),
+b
+415       P:000136 02A6F5            move                          y:(r6+T_COS),
+x1
+416       P:000137 0D1080            bsr     GAIN_OUT                          ;
+ R7 is back at the block start afterwards
+                   00005C
+417    
+418                        R_NEW:
+419                                                                            ;
+ ---- the current grain, 32 frames ----
+420       P:000139 022EFE            move                          y:(r6+S_GI),a
+421       P:00013A 0236B8            move                          y:(r6+S_GF),a
+0
+422       P:00013B 0D1080            bsr     POSGEN
+                   0000CC
+423       P:00013D 022EEC            move                          a1,y:(r6+S_GI
+)
+424       P:00013E 0236A8            move                          a0,y:(r6+S_GF
+)
+425       P:00013F 0236FF            move                          y:(r6+S_PI),b
+426       P:000140 023EB9            move                          y:(r6+S_PF),b
+0
+427       P:000141 028EF5            move                          y:(r6+T_VBI),
+x1
+428       P:000142 0296B4            move                          y:(r6+T_VBF),
+x0
+429       P:000143 200028            add     x,b
+**** 430 [stretch_engine.inc 426]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 430 [stretch_engine.inc 426]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+430       P:000144 0236ED            move                          b1,y:(r6+S_PI
+)
+431       P:000145 023EA9            move                          b0,y:(r6+S_PF
+)
+432       P:000146 382000            move              #32,n0
+433       P:000147 0D1080            bsr     SREAD
+                   0000DF
+434       P:000149 200003            tst     a
+435       P:00014A 0D104A            beq     SILENCE
+                   000056
+436                        PCM_B:
+437       P:00014C 60F400            move              #>$000000,r0            ;
+ kind 3 / TEMP_X
+                   000000
+438       P:00014E 05F420            movec             #>$ffffff,m0
+                   FFFFFF
+439       P:000150 02AEBF            move                          y:(r6+T_CN0),
+b
+440       P:000151 02AEF5            move                          y:(r6+T_CNS),
+x1
+441       P:000152 026EFE            move                          y:(r6+S_FADE)
+,a
+442       P:000153 200003            tst     a
+443       P:000154 0D1042            bne     PCM_ADD
+                   00001B
+444       P:000156 0D1080            bsr     GAIN_OUT
+                   00003D
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 15
+
+
+
+445                                                                            ;
+ ---- outside crossfades: splice once the grain has played GRAN samples,
+446                                                                            ;
+ or early when the grain would leave the window within 8 blocks (high
+447                                                                            ;
+ PTCH runs a grain through the sample fast). The new grain starts with
+448                                                                            ;
+ the next block, at the playhead's new place.
+449       P:000158 0D1080            bsr     COUNT_GRAIN
+                   00002C
+450       P:00015A 0D104F            ble     R_SPLICE
+                   000012
+451       P:00015C 026EBE            move                          y:(r6+S_REL),
+a
+452       P:00015D 200003            tst     a
+453       P:00015E 0D1042            bne     R_DONE
+                   000010
+454       P:000160 027EBE            move                          y:(r6+T_RGI),
+a
+455       P:000161 027EF8            move                          y:(r6+T_RGF),
+a0
+456       P:000162 0C1D10            asl     #8,a,a                            ;
+ 256 * grain rate
+457       P:000163 022EF5            move                          y:(r6+S_GI),x
+1
+458       P:000164 0236B4            move                          y:(r6+S_GF),x
+0
+459       P:000165 200020            add     x,a
+460       P:000166 0246B4            move                          y:(r6+S_HI),x
+0
+461       P:000167 200045            cmp     x0,a
+462       P:000168 0D1049            blt     R_DONE
+                   000006
+463       P:00016A 200013            clr     a                                 ;
+ early splice: the next grain counts from zero
+**** 464 [stretch_engine.inc 460]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 464 [stretch_engine.inc 460]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+464       P:00016B 024EEE            move                          a,y:(r6+S_CNT
+)
+465                        R_SPLICE:
+466       P:00016C 0D1080            bsr     SPLICE
+                   000043
+467                        R_DONE:
+468       P:00016E 00000C            rts
+469                        PCM_ADD:
+470       P:00016F 21A700            move              b1,y1
+471       P:000170 062090            dor     #32,PCM_ADD_END
+                   000005
+472       P:000172 C2F800            move              x:(r0)+,x0  y:(r7),a
+473       P:000173 2000C2            mac     x0,y1,a
+**** 474 [stretch_engine.inc 470]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 474 [stretch_engine.inc 470]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+474       P:000174 5E5F68            add     x1,b                  a,y:(r7)+
+**** 475 [stretch_engine.inc 471]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 475 [stretch_engine.inc 471]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 16
+
+
+
+475       P:000175 21A700            move              b1,y1
+476                        PCM_ADD_END:
+477       P:000176 026EFE            move                          y:(r6+S_FADE)
+,a
+478       P:000177 44F400            move              #>1,x0
+                   000001
+479       P:000179 200040            add     x0,a
+480       P:00017A 44F400            move              #>5,x0
+                   000005
+481       P:00017C 200045            cmp     x0,a
+482       P:00017D 0D1049            blt     R_FADE_STORE
+                   000003
+483       P:00017F 200013            clr     a                                 ;
+ crossfade finished
+484                        R_FADE_STORE:
+**** 485 [stretch_engine.inc 481]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 485 [stretch_engine.inc 481]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+485       P:000180 026EEC            move                          a1,y:(r6+S_FA
+DE)
+486       P:000181 0D1080            bsr     COUNT_GRAIN                       ;
+ the grain keeps counting through the crossfade
+                   000003
+487       P:000183 00000C            rts
+488    
+489                        ; Unless the voice is fading out, count down one bloc
+k of the grain:
+490                        ; returns with the GT condition set while there is gr
+ain left.
+491                        COUNT_GRAIN:
+492       P:000184 026EBE            move                          y:(r6+S_REL),
+a
+493       P:000185 200003            tst     a
+494       P:000186 0D1042            bne     COUNT_GRAIN_END
+                   000009
+495       P:000188 024EFE            move                          y:(r6+S_CNT),
+a
+496       P:000189 44F400            move              #>32,x0
+                   000020
+497       P:00018B 200044            sub     x0,a
+**** 498 [stretch_engine.inc 494]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 498 [stretch_engine.inc 494]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+498       P:00018C 024EEC            move                          a1,y:(r6+S_CN
+T)
+499       P:00018D 200003            tst     a
+500       P:00018E 00000C            rts
+501                        COUNT_GRAIN_END:
+502       P:00018F 56F400            move              #>1,a                   ;
+ fading out: no splice
+                   000001
+503       P:000191 200003            tst     a
+504       P:000192 00000C            rts
+505    
+506                        ; Y:(R7)+ = X:(R0)+ * gain for 32 samples; the gain s
+tarts at B1 and steps by X1.
+507                        ; Software-pipelined: each store goes with the next s
+ample's multiply.
+508                        GAIN_OUT:
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 17
+
+
+
+509       P:000193 44D800            move              x:(r0)+,x0
+510       P:000194 21A700            move              b1,y1
+511       P:000195 200068            add     x1,b
+512       P:000196 44D8C0            mpy     x0,y1,a   x:(r0)+,x0
+513       P:000197 21A700            move              b1,y1
+514       P:000198 061E90            dor     #30,GAIN_OUT_END
+                   000004
+515       P:00019A 200068            add     x1,b
+516       P:00019B B2F8C0            mpy     x0,y1,a   x:(r0)+,x0  a,y:(r7)+
+517       P:00019C 21A700            move              b1,y1
+518                        GAIN_OUT_END:
+519       P:00019D 5E5FC0            mpy     x0,y1,a               a,y:(r7)+
+**** 520 [stretch_engine.inc 516]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 520 [stretch_engine.inc 516]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+520       P:00019E 5E5F00            move                          a,y:(r7)+
+521       P:00019F 00000C            rts
+522    
+523                        SILENCE:
+524       P:0001A0 200013            clr     a
+**** 525 [stretch_engine.inc 521]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 525 [stretch_engine.inc 521]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+525       P:0001A1 022EAE            move                          a,y:(r6+S_ACT
+)
+526       P:0001A2 0620A0            rep     #32
+527       P:0001A3 5E5F00            move                          a,y:(r7)+   ;
+ every path writes the whole output block
+528       P:0001A4 00000C            rts
+529    
+530                        ; R4 = the constant tables (linear addressing).
+531                        TBASE:
+532                        TABLE_BASE:
+533       P:0001A5 64F400            move              #>TABLES,r4
+                   00022C
+534       P:0001A7 05F424            movec             #>$ffffff,m4
+                   FFFFFF
+535       P:0001A9 00000C            rts
+536    
+537                        ; Gain ramp from X0 * Y0 to X1 * Y1 over 32 samples: 
+B1 = start, A1 = step.
+538                        COEF:
+539       P:0001AA 2000D8            mpy     x0,y0,b
+540       P:0001AB 2000F0            mpy     x1,y1,a
+541       P:0001AC 200014            sub     b,a
+542       P:0001AD 0C1C0A            asr     #5,a,a
+543       P:0001AE 00000C            rts
+544    
+545                        ; New grain. The old one keeps playing through the 4-
+block crossfade. The new
+546                        ; one starts at playhead + 0.75 * FLUX * U * GRAN * g
+rain rate, moved back by half the
+547                        ; distance it gains on the playhead during the grain,
+ so the grain is centred
+548                        ; on the playhead; then kept inside lo..hi-1. The gra
+in after it lasts
+549                        ; GRAN * (1 + 0.375 * FLUX * U').
+550                        SPLICE:
+551       P:0001AF 56F400            move              #>1,a
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 18
+
+
+
+                   000001
+**** 552 [stretch_engine.inc 548]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+552       P:0001B1 026EEE            move                          a,y:(r6+S_FAD
+E)
+553       P:0001B2 022EFE            move                          y:(r6+S_GI),a
+**** 554 [stretch_engine.inc 550]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+554       P:0001B3 0276AE            move                          a,y:(r6+S_OGI
+)
+555       P:0001B4 0236BE            move                          y:(r6+S_GF),a
+**** 556 [stretch_engine.inc 552]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+556       P:0001B5 0276EE            move                          a,y:(r6+S_OGF
+)
+557       P:0001B6 0D1080            bsr     RAND
+                   000046
+558       P:0001B8 218700            move              a1,y1
+559       P:0001B9 0226B4            move                          y:(r6+P_FLUX)
+,x0
+560       P:0001BA 46F400            move              #>$600000,y0            ;
+ 0.75
+                   600000
+561       P:0001BC 2000D0            mpy     x0,y0,a
+**** 562 [stretch_engine.inc 558]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 562 [stretch_engine.inc 558]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+562       P:0001BD 218400            move              a1,x0
+563       P:0001BE 2000C0            mpy     x0,y1,a
+**** 564 [stretch_engine.inc 560]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 564 [stretch_engine.inc 560]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+564       P:0001BF 02B6AC            move                          a1,y:(r6+T_K)
+ ; K = 0.75 * FLUX * U
+565       P:0001C0 0D1080            bsr     GRAN_LEN
+                   000033
+566       P:0001C2 02B6EC            move                          a1,y:(r6+T_GR
+AN)
+567       P:0001C3 0C1D0C            asl     #6,a,a
+**** 568 [stretch_engine.inc 564]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+568       P:0001C4 02BEAC            move                          a1,y:(r6+T_L6
+4)
+569       P:0001C5 218400            move              a1,x0
+570       P:0001C6 0286B6            move                          y:(r6+T_RQ),y
+0
+571       P:0001C7 2000D0            mpy     x0,y0,a                           ;
+ J = GRAN * grain rate, in frames
+**** 572 [stretch_engine.inc 568]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 572 [stretch_engine.inc 568]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+572       P:0001C8 02BEEC            move                          a1,y:(r6+T_J)
+573       P:0001C9 0296F6            move                          y:(r6+T_RPQ),
+y0
+574       P:0001CA 2000D8            mpy     x0,y0,b                           ;
+ GRAN * playhead rate
+**** 575 [stretch_engine.inc 571]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 19
+
+
+
+**** 575 [stretch_engine.inc 571]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+575       P:0001CB 21A500            move              b1,x1
+576       P:0001CC 02BEFE            move                          y:(r6+T_J),a
+577       P:0001CD 200064            sub     x1,a
+578       P:0001CE 200022            asr     a
+**** 579 [stretch_engine.inc 575]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+579       P:0001CF 02C6AC            move                          a1,y:(r6+T_CT
+R) ; half of what the grain gains on the playhead
+580       P:0001D0 02BEF4            move                          y:(r6+T_J),x0
+581       P:0001D1 02B6B6            move                          y:(r6+T_K),y0
+582       P:0001D2 2000D8            mpy     x0,y0,b                           ;
+ B1 = floor(J * K)
+583       P:0001D3 023EB9            move                          y:(r6+S_PF),b
+0
+584       P:0001D4 0236F4            move                          y:(r6+S_PI),x
+0
+585       P:0001D5 200048            add     x0,b
+586       P:0001D6 02C6B4            move                          y:(r6+T_CTR),
+x0
+587       P:0001D7 20004C            sub     x0,b                              ;
+ B = playhead + offset - centring, 24.24
+588       P:0001D8 023EF4            move                          y:(r6+S_LO),x
+0
+589       P:0001D9 20004D            cmp     x0,b
+590       P:0001DA 202949            tfr     x0,b      iflt
+591       P:0001DB 0246BE            move                          y:(r6+S_HI),a
+592       P:0001DC 014184            sub     #1,a
+**** 593 [stretch_engine.inc 589]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 593 [stretch_engine.inc 589]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+593       P:0001DD 218400            move              a1,x0
+594       P:0001DE 20004D            cmp     x0,b
+595       P:0001DF 202749            tfr     x0,b      ifgt
+**** 596 [stretch_engine.inc 592]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 596 [stretch_engine.inc 592]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+596       P:0001E0 022EED            move                          b1,y:(r6+S_GI
+)
+597       P:0001E1 0236A9            move                          b0,y:(r6+S_GF
+)
+598       P:0001E2 0D1080            bsr     RAND
+                   00001A
+599       P:0001E4 218700            move              a1,y1
+600       P:0001E5 0226B4            move                          y:(r6+P_FLUX)
+,x0
+601       P:0001E6 46F400            move              #>$300000,y0            ;
+ 0.375
+                   300000
+602       P:0001E8 2000D0            mpy     x0,y0,a
+**** 603 [stretch_engine.inc 599]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 603 [stretch_engine.inc 599]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+603       P:0001E9 218400            move              a1,x0
+604       P:0001EA 2000C0            mpy     x0,y1,a
+**** 605 [stretch_engine.inc 601]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 20
+
+
+
+**** 605 [stretch_engine.inc 601]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+605       P:0001EB 218700            move              a1,y1
+606       P:0001EC 02B6F4            move                          y:(r6+T_GRAN)
+,x0
+607       P:0001ED 2000C8            mpy     x0,y1,b                           ;
+ B1 = floor(GRAN * 0.375 * FLUX * U')
+608       P:0001EE 200048            add     x0,b
+609       P:0001EF 024EF4            move                          y:(r6+S_CNT),
+x0
+610       P:0001F0 200048            add     x0,b                              ;
+ keep the remainder: grains average GRAN samples
+**** 611 [stretch_engine.inc 607]: WARNING --- Pipeline stall reading register B
+ written in previous instruction (X data move field)
+**** 611 [stretch_engine.inc 607]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+611       P:0001F1 024EED            move                          b1,y:(r6+S_CN
+T)
+612       P:0001F2 00000C            rts
+613    
+614                        ; A1 = GRAN in output samples, 300 + floor(4776 * squ
+ared setting); A0 = 0.
+615                        GRAN_LEN:
+616       P:0001F3 021EF6            move                          y:(r6+P_GRAN)
+,y0
+617       P:0001F4 44F400            move              #>4776,x0
+                   0012A8
+618       P:0001F6 2000D0            mpy     x0,y0,a
+619       P:0001F7 44F400            move              #>300,x0
+                   00012C
+620       P:0001F9 200040            add     x0,a
+**** 621 [stretch_engine.inc 617]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 621 [stretch_engine.inc 617]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (X data move field)
+621       P:0001FA 218E00            move              a1,a
+622       P:0001FB 00000C            rts
+623    
+624                        ; A1 = next random value (signed Q23): seed = seed * 
+$19660D + $6EF35F mod 2^24.
+625                        RAND:
+626       P:0001FC 0256F4            move                          y:(r6+S_SEED)
+,x0
+627       P:0001FD 46F400            move              #>$19660d,y0
+                   19660D
+628       P:0001FF 2000D0            mpy     x0,y0,a
+629       P:000200 200022            asr     a
+630       P:000201 210E00            move              a0,a
+631       P:000202 44F400            move              #>$6ef35f,x0
+                   6EF35F
+632       P:000204 200040            add     x0,a
+**** 633 [stretch_engine.inc 629]: WARNING --- Pipeline stall reading register A
+ written in previous instruction (X data move field)
+**** 633 [stretch_engine.inc 629]: WARNING --- Pipeline stall reading register w
+ritten in previous instruction (Y data move field)
+633       P:000205 0256EC            move                          a1,y:(r6+S_SE
+ED)
+634       P:000206 00000C            rts
+635    
+636                        ; Write 32 integer source positions to temporary Y, f
+rom A (24.24) in steps of
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 21
+
+
+
+637                        ; the grain rate. Returns the next position in A. Pos
+itions outside the sample
+638                        ; read as silence. In reverse the loop runs downwards
+ in mirrored coordinates
+639                        ; r = lo + hi - 1 - p, and A converts back on return.
+ A and B take turns
+640                        ; (even and odd samples, each stepping by twice the r
+ate) to avoid stalls.
+641                        POSGEN:
+642       P:000207 027EB5            move                          y:(r6+T_RGI),
+x1
+643       P:000208 027EF4            move                          y:(r6+T_RGF),
+x0
+644       P:000209 02C6F7            move                          y:(r6+T_R2I),
+y1
+645       P:00020A 02CEB6            move                          y:(r6+T_R2F),
+y0
+646                        POSITIONS:
+647       P:00020B 60F400            move              #>$000000,r0            ;
+ kind 4 / TEMP_Y
+                   000000
+648       P:00020D 05F420            movec             #>$ffffff,m0
+                   FFFFFF
+649       P:00020F 025EFF            move                          y:(r6+S_REV),
+b
+650       P:000210 20000B            tst     b
+651       P:000211 0D1042            bne     POSGEN_REV
+                   000009
+652       P:000213 200009            tfr     a,b
+653       P:000214 200028            add     x,b
+654       P:000215 061090            dor     #16,POSGEN_END
+                   000003
+655       P:000217 5E5830            add     y,a                   a,y:(r0)+   ;
+ store a position, then advance
+656       P:000218 5F5838            add     y,b                   b,y:(r0)+
+657                        POSGEN_END:
+658       P:000219 00000C            rts
+659                        POSGEN_REV:
+660       P:00021A 0266BF            move                          y:(r6+S_MIR),
+b
+661       P:00021B 20001C            sub     a,b
+662       P:00021C 200001            tfr     b,a
+663       P:00021D 20002C            sub     x,b
+664       P:00021E 061090            dor     #16,POSGEN_REV_END
+                   000003
+665       P:000220 5E5834            sub     y,a                   a,y:(r0)+
+666       P:000221 5F583C            sub     y,b                   b,y:(r0)+
+667                        POSGEN_REV_END:
+668       P:000222 0266BF            move                          y:(r6+S_MIR),
+b
+669       P:000223 20001C            sub     a,b
+670       P:000224 200001            tfr     b,a
+671       P:000225 00000C            rts
+672    
+673                        ; SAMPLE_READ of N0 frames from the latched bank and 
+slot. A1 = 0 on failure.
+674                        SREAD:
+675                                  if      BANK_ID<0
+677                                  else
+678       P:000226 44F400            move              #>BANK_ID,x0
+                   000000
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  
+stretch_engine.inc  Page 22
+
+
+
+679                                  endif
+680       P:000228 025EB6            move                          y:(r6+S_SLOT)
+,y0
+681                        READ_SAMPLES:
+682       P:000229 0BF080            jsr     >$000000                          ;
+ kind 5 / SAMPLE_READ
+                   000000
+683       P:00022B 00000C            rts
+684    
+685                                  include 'tables.inc'
+686                        ; Generated by gen_tables.py: do not edit.
+687       000000           TB_PITCH  equ     0
+688       00000D           TB_QTR    equ     13
+689       000012           TB_DECAY  equ     18
+690       000092           TB_SPEED  equ     146
+691                        TABLES:
+692                        ; pitch 2^(n/12)/4, n = 0..12
+693       P:00022C                   dc      $200000,$21e71f,$23eb36,$260dfc,$28
+5146,$2ab702,$2d413d,$2ff222
+694       P:000234                   dc      $32cbfd,$35d13f,$39047c,$3c6870,$40
+0000
+695                        ; 1 - k/4, k = 0..4
+696       P:000239                   dc      $7fffff,$600000,$400000,$200000,$00
+0000
+697                        ; decay per block, DEC 0..127
+698       P:00023E                   dc      $6c4e06,$6d4643,$6e334d,$6f158d,$6f
+ed66,$70bb3e,$717f77,$723a74
+699       P:000246                   dc      $72ec92,$739630,$7437a8,$74d152,$75
+6385,$75ee94,$7672d0,$76f086
+700       P:00024E                   dc      $776803,$77d98e,$78456e,$78abe6,$79
+0d37,$7969a0,$79c15b,$7a14a3
+701       P:000256                   dc      $7a63ae,$7aaeb0,$7af5dd,$7b3963,$7b
+7972,$7bb634,$7befd4,$7c267a
+702       P:00025E                   dc      $7c5a4b,$7c8b6d,$7cba02,$7ce62b,$7d
+1007,$7d37b4,$7d5d4f,$7d80f3
+703       P:000266                   dc      $7da2b9,$7dc2bb,$7de10f,$7dfdcb,$7e
+1905,$7e32d1,$7e4b41,$7e6268
+704       P:00026E                   dc      $7e7857,$7e8d1d,$7ea0cb,$7eb36f,$7e
+c517,$7ed5d0,$7ee5a7,$7ef4a7
+705       P:000276                   dc      $7f02dc,$7f1051,$7f1d0f,$7f2920,$7f
+348d,$7f3f60,$7f499f,$7f5353
+706       P:00027E                   dc      $7f5c83,$7f6537,$7f6d74,$7f7541,$7f
+7ca4,$7f83a3,$7f8a42,$7f9087
+707       P:000286                   dc      $7f9677,$7f9c16,$7fa169,$7fa673,$7f
+ab38,$7fafbd,$7fb404,$7fb810
+708       P:00028E                   dc      $7fbbe6,$7fbf87,$7fc2f7,$7fc637,$7f
+c94c,$7fcc36,$7fcef9,$7fd196
+709       P:000296                   dc      $7fd410,$7fd667,$7fd89f,$7fdab9,$7f
+dcb5,$7fde97,$7fe05f,$7fe20f
+710       P:00029E                   dc      $7fe3a8,$7fe52b,$7fe699,$7fe7f4,$7f
+e93c,$7fea73,$7feb99,$7fecb0
+711       P:0002A6                   dc      $7fedb7,$7feeb1,$7fef9d,$7ff07d,$7f
+f151,$7ff219,$7ff2d7,$7ff38b
+712       P:0002AE                   dc      $7ff435,$7ff4d6,$7ff56e,$7ff5ff,$7f
+f687,$7ff709,$7ff783,$7ff7f7
+713       P:0002B6                   dc      $7ff865,$7ff8cd,$7ff92f,$7ff98c,$7f
+f9e4,$7ffa38,$7ffa87,$7fffff
+714                        ; playhead speed for TIME 0..127 (8192 = normal), cur
+ve 1.7262
+715       P:0002BE                   dc      $002000,$001f91,$001f23,$001eb5,$00
+1e48,$001ddb,$001d6f,$001d04
+Motorola DSP56300 Assembler  Version 6.3.15   26-10-11  01:36:47  tables.inc
+  Page 23
+
+
+
+716       P:0002C6                   dc      $001c9a,$001c30,$001bc7,$001b5e,$00
+1af6,$001a8f,$001a28,$0019c2
+717       P:0002CE                   dc      $00195d,$0018f8,$001894,$001831,$00
+17ce,$00176c,$00170b,$0016aa
+718       P:0002D6                   dc      $00164a,$0015eb,$00158c,$00152f,$00
+14d1,$001475,$001419,$0013be
+719       P:0002DE                   dc      $001363,$001309,$0012b0,$001258,$00
+1200,$0011a9,$001152,$0010fd
+720       P:0002E6                   dc      $0010a8,$001054,$001000,$000fad,$00
+0f5b,$000f0a,$000eb9,$000e69
+721       P:0002EE                   dc      $000e1a,$000dcb,$000d7d,$000d30,$00
+0ce4,$000c99,$000c4e,$000c04
+722       P:0002F6                   dc      $000bba,$000b72,$000b2a,$000ae3,$00
+0a9c,$000a57,$000a12,$0009ce
+723       P:0002FE                   dc      $00098a,$000948,$000906,$0008c5,$00
+0885,$000845,$000807,$0007c9
+724       P:000306                   dc      $00078c,$000750,$000714,$0006da,$00
+06a0,$000667,$00062f,$0005f7
+725       P:00030E                   dc      $0005c1,$00058b,$000556,$000522,$00
+04ef,$0004bd,$00048c,$00045b
+726       P:000316                   dc      $00042b,$0003fc,$0003cf,$0003a2,$00
+0375,$00034a,$000320,$0002f7
+727       P:00031E                   dc      $0002ce,$0002a7,$000280,$00025a,$00
+0236,$000212,$0001ef,$0001ce
+728       P:000326                   dc      $0001ad,$00018d,$00016f,$000151,$00
+0134,$000119,$0000ff,$0000e5
+729       P:00032E                   dc      $0000cd,$0000b6,$0000a0,$00008c,$00
+0078,$000066,$000055,$000045
+730       P:000336                   dc      $000037,$00002a,$00001f,$000015,$00
+000d,$000006,$000002,$000000
+731                                  endsec
+
+0    Errors
+137  Warnings
+
+
