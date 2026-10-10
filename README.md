@@ -7,17 +7,14 @@
 
 
 **what it is**
-
 A custom sample timestretching machine for the Elektron Machinedrum, compatible with the [X.20 firmware](https://github.com/jmamma/MDX). I wanted to make an homage to the Ableton texture warp mode: that gritty, Akai S950 kind of timestretch sound. This machine is focused on the textural exploration of slowing down the sample and altering the grain size and flux (jitter of grains). There are **3 versions depending on compatibility and/or your preferred use case (see dl links below):** one that addreses samples in UW ROM and E12, one for just the UW ROM, and one that just looks at *internal* E12 samples (the latter being compatible with all models). 
 
 **parameters**
-
 Here you get a SMPL knob for selecting the respective sample slot to address (plockable of course) -- another side benefit of this is you don't have to dig thru ROM/E12 to find your sample, a DECay, the TIME knob, which starts at no stretch and increases to infinite freeeeeeeeeeze. GRAN and FLUX are designed to work like ableton's texture warp, and unlike in Ableton, we can actually modulate these params!!! have fun sssttrrreeeetttttccccchhhhiiiiiiiiiiiinnnnnggggggggg :slight_smile: 
 
 <img width="375" height="500" alt="cd4e9815e1427f9ffd8483e6518562df343691ba_2_750x1000" src="https://github.com/user-attachments/assets/66674c9e-df71-4509-8130-aabe4dc5b014" />
 
 **how to install (applies to any USR machine)**:
-
 _requirements:_ As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my 'SMP-S2', which works on your internal E12 samples.
 To install my *ROM and E12* machine (SMP-ST) or the ROM-only version, you’ll need a Machinedrum UW (MKI or II, + or not) on X.20B.
 
@@ -34,5 +31,4 @@ To install my *ROM and E12* machine (SMP-ST) or the ROM-only version, you’ll n
 –––––––––––––––––––––
 
 **important disclaimers**
-
 I have tested these new timestretching machines a bunch already and tweaked them but it should of course go without saying, as Justin mentions in the release of X.20B, that you install third-party machines at your own risk. Back up your machine before doing any of this, including upgrading the firmware. That said, all of this appears to be running very smoothly on the UW+ MKII. Finally, I’m not affiliated with the development of MDX in any way, just a member of the community who is very excited about the possibilities of this firmware!
