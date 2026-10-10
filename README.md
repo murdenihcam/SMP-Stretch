@@ -15,10 +15,10 @@ Here you get a SMPL knob for selecting the respective sample slot to address (pl
 <img width="375" height="500" alt="cd4e9815e1427f9ffd8483e6518562df343691ba_2_750x1000" src="https://github.com/user-attachments/assets/66674c9e-df71-4509-8130-aabe4dc5b014" />
 
 **how to install (applies to any USR machine)**:
-requirements: As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my 'SMP-S2' below, which works on your internal E12 samples.
+requirements: As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my 'SMP-S2', which works on your internal E12 samples.
 To install my *ROM and E12* machine (SMP-ST) or the ROM-only version, you’ll need a Machinedrum UW (MKI or II, + or not) on X.20B.
 
-1. Locate a USR machine .syx that you want to install (eg one of the many that come with X.20 and/or my timestretcher (dl links below) and drag these into Sysex Librarian (or your sysex app of choice)
+1. Locate a USR machine .syx that you want to install (eg one of the many that come with X.20 and/or my machine(s) and drag these into Sysex Librarian (or your sysex app of choice)
 2. connect the MD to your midi interface 
 3. FUNC+GLOBAL, FILE --> MACHINE MGR. Choose an empty slot, select RECV. It will say WAITING...
 4. Using Sysex Librarian, play the .syx file(s) to the MD. You can select multiple .syx and play all at once; the machine bank will populate empty slots automatically. this is usually a very quick transfer as these are small files. The machine will then install. 
