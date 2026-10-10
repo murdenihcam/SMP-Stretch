@@ -1,10 +1,9 @@
 # **SMP-ST[RETCH]** 
 <img width="1473" height="230" alt="SMP-ST" src="https://github.com/user-attachments/assets/045f9338-a97d-4bf4-b034-74f0a374cc60" />
 
-<img width="192" height="144" alt="SMP-S2_logo_web" src="https://github.com/user-attachments/assets/c465f351-2075-4fc2-b304-5af78af83603" />
-<img width="192" height="144" alt="SMP-SR_logo_web" src="https://github.com/user-attachments/assets/b9ac8ede-a092-4e65-a0aa-90c8f4ea5752" />
 <img width="192" height="144" alt="SMP-ST_logo_web" src="https://github.com/user-attachments/assets/184df9b1-042f-4742-97e0-c798d60947c7" />
-
+<img width="192" height="144" alt="SMP-SR_logo_web" src="https://github.com/user-attachments/assets/b9ac8ede-a092-4e65-a0aa-90c8f4ea5752" />
+<img width="192" height="144" alt="SMP-S2_logo_web" src="https://github.com/user-attachments/assets/c465f351-2075-4fc2-b304-5af78af83603" />
 
 **what it is**
 A custom sample timestretching machine for the Elektron Machinedrum, compatible with the [X.20 firmware](https://github.com/jmamma/MDX). I wanted to make an homage to the Ableton texture warp mode: that gritty, Akai S950 kind of timestretch sound. This machine is focused on the textural exploration of slowing down the sample and altering the grain size and flux (jitter of grains). There are **3 versions depending on compatibility and/or your preferred use case (see dl links below):** one that addreses samples in UW ROM and E12, one for just the UW ROM, and one that just looks at *internal* E12 samples (the latter being compatible with all models). 
