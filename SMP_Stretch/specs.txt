@@ -1,0 +1,37 @@
+SMP STRETCH machines for the Machinedrum (X.20 firmware, MDS user machines)
+==========================================================================
+
+Three versions of the same time-stretch sample machine:
+
+  Folder   Shown on the MD   Plays                                    Install file      Slot
+  SMP-SR   SMP-SR            UW ROM samples 1..48                     SMP-SR_U01.syx    U01
+  SMP-S2   SMP-S2            internal (E12) samples 1..21             SMP-S2_U02.syx    U02
+  SMP-ST   SMP-ST            UW ROM 1..48, then internal E1..E21      SMP-ST_U03.syx    U03
+
+The destination slot is stored inside each .syx; renaming the file does not
+change it. Sending a .syx replaces whatever is in that slot.
+
+Each machine folder also holds:
+  *.mds              the machine package the .syx was made from
+  *_logo_32x24.png   the MACHINE MGR logo, exactly as packed (black = pixel on)
+  *_logo_web.png     the logo at 192x144, black on #CD2824
+
+Controls (all three machines)
+-----------------------------
+  PTCH  pitch, half a semitone per step: -64..+63 = -32..+31.5 semitones;
+        independent of TIME
+  SMPL  sample (picked when the note is triggered)
+  DEC   decay: 0 short .. 126 long (60 dB in 0.03..30 s); 127 = no decay
+  TIME  slows the playback, pitch unchanged: 0 normal, 42 half speed,
+        64 about 0.3x, 96 about 0.09x, 127 frozen
+  STRT  start point; END end point (END before STRT plays in reverse)
+  GRAN  grain length, 300..5000 samples
+  FLUX  random grain position and length (0..0.75)
+
+_source
+-------
+Everything needed to rebuild and re-test: the shared engine
+(stretch_engine.inc), one small wrapper + JSON + logo (.pbm) per machine,
+the tables generator, build.cmd, the bit-exact Python model and the
+simulator tests. Build one machine from that folder in a cmd window with
+DSP56300_TOOLS and MDS_REPO set:  .\build.cmd rom_stretch 1

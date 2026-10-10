@@ -1,0 +1,172 @@
+{
+  "id": "org.example.rom-e12-stretch",
+  "display_name": "ROM+E12 STRETCH",
+  "category": "SMP",
+  "short_label": "ST",
+  "machine_version": "0.6",
+  "params": [
+    {
+      "name": "PTCH",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "SMPL",
+      "default": 1,
+      "min": 1,
+      "max": 69,
+      "transform": "index",
+      "value_text": [
+        {
+          "value": 49,
+          "text": "E1"
+        },
+        {
+          "value": 50,
+          "text": "E2"
+        },
+        {
+          "value": 51,
+          "text": "E3"
+        },
+        {
+          "value": 52,
+          "text": "E4"
+        },
+        {
+          "value": 53,
+          "text": "E5"
+        },
+        {
+          "value": 54,
+          "text": "E6"
+        },
+        {
+          "value": 55,
+          "text": "E7"
+        },
+        {
+          "value": 56,
+          "text": "E8"
+        },
+        {
+          "value": 57,
+          "text": "E9"
+        },
+        {
+          "value": 58,
+          "text": "E10"
+        },
+        {
+          "value": 59,
+          "text": "E11"
+        },
+        {
+          "value": 60,
+          "text": "E12"
+        },
+        {
+          "value": 61,
+          "text": "E13"
+        },
+        {
+          "value": 62,
+          "text": "E14"
+        },
+        {
+          "value": 63,
+          "text": "E15"
+        },
+        {
+          "value": 64,
+          "text": "E16"
+        },
+        {
+          "value": 65,
+          "text": "E17"
+        },
+        {
+          "value": 66,
+          "text": "E18"
+        },
+        {
+          "value": 67,
+          "text": "E19"
+        },
+        {
+          "value": 68,
+          "text": "E20"
+        },
+        {
+          "value": 69,
+          "text": "E21"
+        }
+      ]
+    },
+    {
+      "name": "DEC",
+      "default": 127,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "TIME",
+      "default": 0,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "STRT",
+      "default": 0,
+      "transform": "unipolar_q23"
+    },
+    {
+      "name": "END",
+      "default": 127,
+      "transform": "unipolar_q23"
+    },
+    {
+      "name": "GRAN",
+      "default": 64,
+      "transform": "unipolar_square_q23",
+      "control": "continuous"
+    },
+    {
+      "name": "FLUX",
+      "default": 0,
+      "transform": "unipolar_q23",
+      "control": "continuous"
+    }
+  ],
+  "program": {
+    "y_workset_words": 51,
+    "relocations": [
+      "TABLE_BASE"
+    ],
+    "imports": [
+      {
+        "symbol": "TRIG_INFO",
+        "abi_symbol": 9
+      },
+      {
+        "symbol": "PCM_A",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "PCM_B",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "POSITIONS",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "READ_SAMPLES",
+        "abi_symbol": 10
+      }
+    ]
+  },
+  "max_track_cycles": 3500,
+  "description": "UW ROM and internal (E12) sample player with a lo-fi splice time-stretch, same engine as SMP-ST: SMPL 1..48 are UW ROM slots, E1..E21 the internal samples; TIME slows the playback (0 normal, 42 half, 127 frozen) at unchanged pitch, PTCH +-32 semitones, DEC decay (127 = none), GRAN grain length, FLUX random jitter; END before STRT plays in reverse"
+}
