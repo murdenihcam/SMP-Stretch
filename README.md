@@ -1,7 +1,7 @@
 # - *ੈ✩‧₊˚murdenihcam USR machines˖⁺‧₊˚✧ - 
 This is a repository containing all of the USR machines that I have released for the [MDX X20 firmware](https://github.com/jmamma/MDX). 
 - Discussion thread here: [Custom USR Machines for X.20](https://www.elektronauts.com/t/custom-usr-machines-for-x-20/257233). 
-- Here's a MD/MnM community discord that I use to discuss this: https://discord.gg/HNtQsSmkf
+- Here's an MD/MnM community discord that I use to discuss this: https://discord.gg/HNtQsSmkf
 ---
 
 **important disclaimers**:
