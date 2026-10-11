@@ -1,9 +1,0 @@
-; SMP-TG "TRANS SLICER TG" (test): SMP-TR whose TIME also shortens the grains above
-; half way: GRAN 64's 1494 samples up to TIME 64, down to 909 (GRAN about 46) at 127.
-; SMPL 1..48 are UW ROM slots, E1..E21 the internal samples.
-BANK_ID  equ -1
-UW_SLOTS equ 48
-TIME_ST  equ 1
-TRANS    equ 1
-TIME_GRAN equ 1
-        include 'slicer_engine.inc'

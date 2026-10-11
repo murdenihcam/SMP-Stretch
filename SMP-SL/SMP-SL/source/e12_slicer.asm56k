@@ -1,4 +1,0 @@
-; SMP-SN "E12 SLICER": SMPL E1..E21 are the internal samples. The engine is in slicer_engine.inc.
-BANK_ID  equ 0
-TIME_ST  equ 1                  ; TIME above 0: the playhead speed ignores PTCH, as SMP-ST
-        include 'slicer_engine.inc'

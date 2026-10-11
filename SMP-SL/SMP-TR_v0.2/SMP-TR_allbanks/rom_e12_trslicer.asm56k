@@ -1,7 +1,0 @@
-; SMP-TR "TRANSIENT SLICER" (draft): SMP-SL with slices at detected onsets.
-; SMPL 1..48 are UW ROM slots, E1..E21 the internal samples. Knob 6 is THRS.
-BANK_ID  equ -1
-UW_SLOTS equ 48
-TIME_ST  equ 1
-TRANS    equ 1
-        include 'slicer_engine.inc'
