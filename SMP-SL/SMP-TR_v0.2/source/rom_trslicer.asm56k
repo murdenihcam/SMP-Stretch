@@ -1,0 +1,5 @@
+; SMP-TM "ROM TRANSIENT SLICER": SMP-TR for the UW ROM slots only (SMPL 1..48).
+BANK_ID  equ 1
+TIME_ST  equ 1
+TRANS    equ 1
+        include 'slicer_engine.inc'

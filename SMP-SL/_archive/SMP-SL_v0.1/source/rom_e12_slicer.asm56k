@@ -1,0 +1,5 @@
+; SMP-SL "ROM+E12 SLICER": SMPL 1..48 are UW ROM slots, E1..E21 the internal
+; samples. The engine is in slicer_engine.inc.
+UW_SLOTS equ 48
+TIME_ST  equ 0                  ; 0: the TIME playhead runs at the pitched rate (varispeed)
+        include 'slicer_engine.inc'

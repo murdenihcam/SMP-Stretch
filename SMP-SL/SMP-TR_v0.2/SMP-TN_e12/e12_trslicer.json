@@ -1,0 +1,224 @@
+{
+  "id": "org.example.e12-trslicer",
+  "display_name": "E12 TRANS SLICER",
+  "category": "SMP",
+  "short_label": "TN",
+  "machine_version": "0.2",
+  "params": [
+    {
+      "name": "PTCH",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "SMPL",
+      "default": 1,
+      "min": 1,
+      "max": 21,
+      "transform": "index",
+      "value_text": [
+        {
+          "value": 1,
+          "text": "E1"
+        },
+        {
+          "value": 2,
+          "text": "E2"
+        },
+        {
+          "value": 3,
+          "text": "E3"
+        },
+        {
+          "value": 4,
+          "text": "E4"
+        },
+        {
+          "value": 5,
+          "text": "E5"
+        },
+        {
+          "value": 6,
+          "text": "E6"
+        },
+        {
+          "value": 7,
+          "text": "E7"
+        },
+        {
+          "value": 8,
+          "text": "E8"
+        },
+        {
+          "value": 9,
+          "text": "E9"
+        },
+        {
+          "value": 10,
+          "text": "E10"
+        },
+        {
+          "value": 11,
+          "text": "E11"
+        },
+        {
+          "value": 12,
+          "text": "E12"
+        },
+        {
+          "value": 13,
+          "text": "E13"
+        },
+        {
+          "value": 14,
+          "text": "E14"
+        },
+        {
+          "value": 15,
+          "text": "E15"
+        },
+        {
+          "value": 16,
+          "text": "E16"
+        },
+        {
+          "value": 17,
+          "text": "E17"
+        },
+        {
+          "value": 18,
+          "text": "E18"
+        },
+        {
+          "value": 19,
+          "text": "E19"
+        },
+        {
+          "value": 20,
+          "text": "E20"
+        },
+        {
+          "value": 21,
+          "text": "E21"
+        }
+      ]
+    },
+    {
+      "name": "DEC",
+      "default": 0,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "TIME",
+      "default": 0,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "PLAY",
+      "default": 0,
+      "min": 0,
+      "max": 2,
+      "transform": "index",
+      "value_text": [
+        {
+          "value": 0,
+          "text": "FWD"
+        },
+        {
+          "value": 1,
+          "text": "REV"
+        },
+        {
+          "value": 2,
+          "text": "BI"
+        }
+      ]
+    },
+    {
+      "name": "THRS",
+      "default": 27,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "SLIC",
+      "default": 32,
+      "min": 1,
+      "max": 32,
+      "transform": "index"
+    },
+    {
+      "name": "SLNO",
+      "default": 1,
+      "min": 1,
+      "max": 32,
+      "transform": "index"
+    }
+  ],
+  "program": {
+    "x_workset_words": 64,
+    "y_workset_words": 64,
+    "relocations": [
+      "TABLE_BASE"
+    ],
+    "imports": [
+      {
+        "symbol": "PCM_A",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "PCM_B",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "POSITIONS",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "READ_SAMPLES",
+        "abi_symbol": 10
+      },
+      {
+        "symbol": "ANA_INFO",
+        "abi_symbol": 9
+      },
+      {
+        "symbol": "ANA_POS",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "ANA_READ",
+        "abi_symbol": 10
+      },
+      {
+        "symbol": "ANA_PCM",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "REF_POS",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "REF_READ",
+        "abi_symbol": 10
+      },
+      {
+        "symbol": "REF_PCM",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "TRIG_INFO",
+        "abi_symbol": 9
+      },
+      {
+        "symbol": "OB_TMP",
+        "abi_symbol": 8
+      }
+    ]
+  },
+  "max_track_cycles": 3900,
+  "description": "Internal E12 (E1..E21) sample slicer with slices at detected transients. The selected sample is analysed in the background (well under a second while the track is quiet); THRS sets how strong a transient must be (energy rise x1.25 at 0 to x4 at 127), SLIC the most slices, up to 32 (the strongest transients), SLNO the slice; until the analysis has the sample, SLIC equal slices. PTCH, DEC, TIME, PLAY as SMP-SL."
+}

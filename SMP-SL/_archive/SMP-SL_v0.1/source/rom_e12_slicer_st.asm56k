@@ -1,0 +1,6 @@
+; SMP-SX "SLICER ST-TIME": test variant of SMP-SL in which, with TIME above 0,
+; the playhead speed comes from TIME alone (PTCH no longer changes it), as in
+; SMP-ST. The engine is in slicer_engine.inc.
+UW_SLOTS equ 48
+TIME_ST  equ 1
+        include 'slicer_engine.inc'

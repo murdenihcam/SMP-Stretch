@@ -1,0 +1,5 @@
+; SMP-TN "E12 TRANSIENT SLICER": SMP-TR for the internal (E12) samples only (SMPL E1..E21).
+BANK_ID  equ 0
+TIME_ST  equ 1
+TRANS    equ 1
+        include 'slicer_engine.inc'

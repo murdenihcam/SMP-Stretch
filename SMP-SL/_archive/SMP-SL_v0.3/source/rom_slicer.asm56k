@@ -1,0 +1,4 @@
+; SMP-SM "ROM SLICER": SMPL 1..48 are the UW ROM slots. The engine is in slicer_engine.inc.
+BANK_ID  equ 1
+TIME_ST  equ 1                  ; TIME above 0: the playhead speed ignores PTCH, as SMP-ST
+        include 'slicer_engine.inc'

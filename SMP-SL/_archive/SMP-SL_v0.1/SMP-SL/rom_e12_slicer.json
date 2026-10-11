@@ -1,0 +1,222 @@
+{
+  "id": "org.example.rom-e12-slicer",
+  "display_name": "ROM+E12 SLICER",
+  "category": "SMP",
+  "short_label": "SL",
+  "machine_version": "0.1",
+  "params": [
+    {
+      "name": "PTCH",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "SMPL",
+      "default": 1,
+      "min": 1,
+      "max": 69,
+      "transform": "index",
+      "value_text": [
+        {
+          "value": 49,
+          "text": "E1"
+        },
+        {
+          "value": 50,
+          "text": "E2"
+        },
+        {
+          "value": 51,
+          "text": "E3"
+        },
+        {
+          "value": 52,
+          "text": "E4"
+        },
+        {
+          "value": 53,
+          "text": "E5"
+        },
+        {
+          "value": 54,
+          "text": "E6"
+        },
+        {
+          "value": 55,
+          "text": "E7"
+        },
+        {
+          "value": 56,
+          "text": "E8"
+        },
+        {
+          "value": 57,
+          "text": "E9"
+        },
+        {
+          "value": 58,
+          "text": "E10"
+        },
+        {
+          "value": 59,
+          "text": "E11"
+        },
+        {
+          "value": 60,
+          "text": "E12"
+        },
+        {
+          "value": 61,
+          "text": "E13"
+        },
+        {
+          "value": 62,
+          "text": "E14"
+        },
+        {
+          "value": 63,
+          "text": "E15"
+        },
+        {
+          "value": 64,
+          "text": "E16"
+        },
+        {
+          "value": 65,
+          "text": "E17"
+        },
+        {
+          "value": 66,
+          "text": "E18"
+        },
+        {
+          "value": 67,
+          "text": "E19"
+        },
+        {
+          "value": 68,
+          "text": "E20"
+        },
+        {
+          "value": 69,
+          "text": "E21"
+        }
+      ]
+    },
+    {
+      "name": "DEC",
+      "default": 127,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "TIME",
+      "default": 0,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "PLAY",
+      "default": 0,
+      "min": 0,
+      "max": 2,
+      "transform": "index",
+      "value_text": [
+        {
+          "value": 0,
+          "text": "FWD"
+        },
+        {
+          "value": 1,
+          "text": "REV"
+        },
+        {
+          "value": 2,
+          "text": "BI"
+        }
+      ]
+    },
+    {
+      "name": "MODE",
+      "default": 0,
+      "min": 0,
+      "max": 6,
+      "transform": "index",
+      "value_text": [
+        {
+          "value": 0,
+          "text": "EQUA"
+        },
+        {
+          "value": 1,
+          "text": "EXP"
+        },
+        {
+          "value": 2,
+          "text": "LOG"
+        },
+        {
+          "value": 3,
+          "text": "SED1"
+        },
+        {
+          "value": 4,
+          "text": "SED2"
+        },
+        {
+          "value": 5,
+          "text": "SED3"
+        },
+        {
+          "value": 6,
+          "text": "SED4"
+        }
+      ]
+    },
+    {
+      "name": "SLIC",
+      "default": 8,
+      "min": 1,
+      "max": 64,
+      "transform": "index"
+    },
+    {
+      "name": "SLNO",
+      "default": 1,
+      "min": 1,
+      "max": 64,
+      "transform": "index"
+    }
+  ],
+  "program": {
+    "y_workset_words": 51,
+    "relocations": [
+      "TABLE_BASE"
+    ],
+    "imports": [
+      {
+        "symbol": "TRIG_INFO",
+        "abi_symbol": 9
+      },
+      {
+        "symbol": "PCM_A",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "PCM_B",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "POSITIONS",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "READ_SAMPLES",
+        "abi_symbol": 10
+      }
+    ]
+  },
+  "max_track_cycles": 3500,
+  "description": "UW ROM and internal (E12) sample slicer: SMPL 1..48 UW ROM, E1..E21 internal; MODE cuts the sample into SLIC slices (EQUA equal, EXP longer along, LOG shorter along, SED1-4 Perlin-noise seeds), SLNO picks the slice; PLAY FWD/REV/BI loops it while DEC lasts (127 = forever); TIME slows the playhead with SMP-ST's splice stretch (grain 64); PTCH +-32 semitones"
+}
