@@ -1,5 +1,0 @@
-; SMP-ST, UW ROM + internal: one SMPL list over the 48 UW ROM slots and then
-; the 21 internal (E12) samples. The engine is shared; see stretch_engine.inc.
-BANK_ID equ -1                  ; both banks, chosen by SMPL at TRIG
-UW_SLOTS equ 48                 ; SMPL settings before the internal samples
-        include 'stretch_engine.inc'

@@ -1,4 +1,0 @@
-; SMP-SR: UW ROM sample playback with a lo-fi splice time-stretch (S950 style).
-; The engine is shared with SMP-T2 (e12_stretch); see stretch_engine.inc.
-BANK_ID equ 1                   ; SAMPLE_INFO / SAMPLE_READ bank: UW ROM
-        include 'stretch_engine.inc'
