@@ -5,10 +5,12 @@ This is a repository containing all of the USR machines that I have released for
 ---
 
 **important disclaimers**:
-I have tested these new machines a bunch already and tweaked them but it should of course go without saying, as Justin mentions in the release of X.20B, that you install third-party machines at your own risk. Back up your machine before doing any of this, including upgrading the firmware. That said, all of this appears to be running very smoothly on the UW+ MKII. Finally, I’m not affiliated with the development of MDX in any way, just a member of the community who is very excited about the possibilities of this firmware! 
+- I have tested these new machines a bunch already and tweaked them but it should of course go without saying, as Justin mentions in the release of X.20B, that you install third-party machines at your own risk. Back up your machine before doing any of this, including upgrading the firmware. That said, all of this appears to be running very smoothly on the UW+ MKII. 
+- This is a project that is entirely conducted with LLM support for the coding. I have neither the expertise, the will, or the time to do things manually, and am just a music producer who is excited about being able to provide detailed specifications of what a machine will do and iterate until the results sound like I want them to. 
+- Finally, I’m not affiliated with the development of MDX in any way, just a member of the community who is very excited about the possibilities of this firmware! 
 
 **how to install (applies to any USR machine)**:
-_requirements:_ As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my E12-only sample playback machines, which work on your internal E12 samples, as well as NFX modules.
+- _requirements:_ As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my E12-only sample playback machines, which work on your internal E12 samples, as well as NFX modules.
 To install my *ROM and E12* machines (SMP-ST) or the ROM-only versions, you’ll need a Machinedrum UW (MKI or II, + or not) on X.20B.
 
 1. Locate a USR machine .syx that you want to install (eg one of the many that come with X.20 and/or my machine(s)--.syx to be found in respective folders here) and drag these into Sysex Librarian (or your sysex app of choice)
