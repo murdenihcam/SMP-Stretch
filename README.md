@@ -17,6 +17,8 @@ To install my *ROM and E12* machines (SMP-ST) or the ROM-only versions, you’ll
 4. Using Sysex Librarian, play the .syx file(s) to the MD. You can select multiple .syx and play all at once; the machine bank will populate empty slots automatically. this is usually a very quick transfer as these are small files. The machine will then install. 
 5. When you go to KIT-->EDIT, you may now see new machine categor(ies) corresponding to the new machine and you're good to go. Notably several of the ones from MDX will be found in existing categories like NFX and P-I. We’re limited to 16 slots but with a + drive you can have multiple Machine Banks. (moreover I’m told that the exciting https://kitbasher.xyz project will soon be updated to support X.20, where you’ll then be able to add further machines at the level of firmware, but I digress)
 
+**NOTE:** One current bug to be aware of with all USR machines that I encountered is that if you have a kit loaded that uses USR machines and you install new machines, those that were in your current pattern might start sounding glitchy. This is temporary and is quickly resolved by reloading the kit or power cycling.
+
 # **machine descriptions:**
 
 
@@ -35,8 +37,5 @@ Here you get a SMPL knob for selecting the respective sample slot to address (pl
 
 <img width="375" height="500" alt="cd4e9815e1427f9ffd8483e6518562df343691ba_2_750x1000" src="https://github.com/user-attachments/assets/66674c9e-df71-4509-8130-aabe4dc5b014" />
 
-
-
-**NOTE:** One current bug to be aware of with all USR machines that I encountered is that if you have a kit loaded that uses USR machines and you install new machines, those that were in your current pattern might start sounding glitchy. This is temporary and is quickly resolved by reloading the kit or power cycling.
 
 –––––––––––––––––––––
