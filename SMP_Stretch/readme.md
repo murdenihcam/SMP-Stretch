@@ -5,16 +5,16 @@
 ![](readme/rom_e12_stretch_web.png)<!-- {"width":141} -->   ![](readme/rom_stretch_web.png)<!-- {"width":140} -->   ![](readme/e12_stretch_web.png)<!-- {"width":140} -->
 
 **what it is**
-I wanted to make an homage to the Ableton texture warp mode: that gritty, Akai S950 kind of timestretch sound. This machine is focused on the textural exploration of slowing down the sample and altering the grain size and flux (jitter of grains). There are **3 versions depending on compatibility and/or your preferred use case (see dl links below):** one that addreses samples in UW ROM and E12, one for just the UW ROM, and one that just looks at *internal* E12 samples (the latter being compatible with all models). 
+I wanted to make an homage to the Ableton texture warp mode: that gritty, Akai S950 kind of timestretch sound. This machine is focused on the textural exploration of slowing down the sample and altering the grain size and flux (jitter of grains). There are **3 versions depending on compatibility and/or your preferred use case:** one that addreses samples in UW ROM and E12, one for just the UW ROM, and one that just looks at *internal* E12 samples (the latter being compatible with all models). 
 
 **parameters**
 Here you get a SMPL knob for selecting the respective sample slot to address (plockable of course) -- another side benefit of this is you don't have to dig thru ROM/E12 to find your sample, a DECay, the TIME knob, which starts at no stretch and increases to infinite freeeeeeeeeeze. GRAN and FLUX are designed to work like ableton's texture warp, and unlike in Ableton, we can actually modulate these params!!! have fun sssttrrreeeetttttccccchhhhiiiiiiiiiiiinnnnnggggggggg 
 
 **how to install (applies to any USR machine)**:
-requirements: As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my 'SMP-S2' below, which works on your internal E12 samples.
+requirements: As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my 'SMP-S2', which works on your internal E12 samples.
 To install my *ROM and E12* machine (SMP-ST) or the ROM-only version, you’ll need a Machinedrum UW (MKI or II, + or not) on X.20B.
 
-1. Locate a USR machine .syx that you want to install (eg one of the many that come with X.20 and/or my timestretcher (dl links below) and drag these into Sysex Librarian (or your sysex app of choice)
+1. Locate a USR machine .syx that you want to install (eg one of the many that come with X.20 and/or my timestretcher and drag these into Sysex Librarian (or your sysex app of choice)
 2. connect the MD to your midi interface 
 3. FUNC+GLOBAL, FILE --> MACHINE MGR. Choose an empty slot, select RECV. It will say WAITING...
 4. Using Sysex Librarian, play the .syx file(s) to the MD. You can select multiple .syx and play all at once; the machine bank will populate empty slots automatically. this is usually a very quick transfer as these are small files. The machine will then install. 
