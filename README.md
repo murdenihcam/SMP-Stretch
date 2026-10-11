@@ -1,5 +1,8 @@
 # - murdenihcam USR machines - 
-This is a repository containing all of the USR machines that I have released for the [MDX X20 firmware](https://github.com/jmamma/MDX). **discussion thread and audio demo here:** [Custom USR Machines for X.20](https://www.elektronauts.com/t/custom-usr-machines-for-x-20/257233). Here is a discord that I 
+This is a repository containing all of the USR machines that I have released for the [MDX X20 firmware](https://github.com/jmamma/MDX). 
+- Discussion thread here: [Custom USR Machines for X.20](https://www.elektronauts.com/t/custom-usr-machines-for-x-20/257233). 
+- Here's a MD/MnM community discord that I use to discuss this: https://discord.gg/HNtQsSmkf
+---
 
 **important disclaimers**
 I have tested these new machines a bunch already and tweaked them but it should of course go without saying, as Justin mentions in the release of X.20B, that you install third-party machines at your own risk. Back up your machine before doing any of this, including upgrading the firmware. That said, all of this appears to be running very smoothly on the UW+ MKII. Finally, I’m not affiliated with the development of MDX in any way, just a member of the community who is very excited about the possibilities of this firmware! 
