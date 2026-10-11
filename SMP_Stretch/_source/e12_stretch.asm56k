@@ -1,0 +1,4 @@
+; SMP-S2: internal (E12) sample playback with a lo-fi splice time-stretch.
+; The engine is shared with SMP-ST (rom_stretch); see stretch_engine.inc.
+BANK_ID equ 0                   ; SAMPLE_INFO / SAMPLE_READ bank: INTERNAL
+        include 'stretch_engine.inc'
