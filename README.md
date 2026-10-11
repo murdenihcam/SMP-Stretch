@@ -6,7 +6,7 @@ This is a repository containing all of the USR machines that I have released for
 
 **important disclaimers**:
 - I have tested these new machines a bunch already and tweaked them but it should of course go without saying, as Justin mentions in the release of X.20B, that you install third-party machines at your own risk. Back up your machine before doing any of this, including upgrading the firmware. That said, all of this appears to be running very smoothly on the UW+ MKII. 
-- This is a project that is entirely conducted with LLM support for the coding. I have neither the expertise, the will, or the time to do things manually, and am just a music producer who is excited about being able to provide detailed specifications of what a machine will do and iterate until the results sound like I want them to. 
+- This is a project that is entirely conducted with LLM support for the coding. Development proceeded with lots of testing and iteration to tune the results.
 - Finally, I’m not affiliated with the development of MDX in any way, just a member of the community who is very excited about the possibilities of this firmware! 
 
 **how to install (applies to any USR machine)**:
