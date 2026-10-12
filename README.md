@@ -11,7 +11,7 @@ This is a repository containing all of the USR machines that I have released for
 
 **how to install (applies to any USR machine)**:
 - _requirements:_ As I understand it, you can use **any** MD updated to [X.20B firmware available here](https://github.com/jmamma/MDX) to install machines from the folder of machines provided by MDX that comes in the firmware ZIP. This is also true of my E12-only sample playback machines, which work on your internal E12 samples, as well as NFX modules.
-To install my *ROM and E12* machines (SMP-ST) or the ROM-only versions, you’ll need a Machinedrum UW (MKI or II, + or not) on X.20B.
+To install my *ROM and E12* machines or the ROM-only versions, you’ll need a Machinedrum UW on X.20B.
 
 1. Locate a USR machine .syx that you want to install (eg one of the many that come with X.20 and/or my machine(s)--.syx to be found in respective folders here) and drag these into Sysex Librarian (or your sysex app of choice)
 2. connect the MD to your midi interface 
