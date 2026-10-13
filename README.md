@@ -30,9 +30,9 @@ To install my *ROM and E12* machines or the ROM-only versions, you’ll need a M
 
 <img width="481" height="306" alt="smp-sl pic" src="https://github.com/user-attachments/assets/d1255490-0b5a-4155-bebd-a3be1a904b9d" />\
 
-<img width="192" height="144" alt="rom_e12_slicer_web" src="https://github.com/user-attachments/assets/108b719b-0604-4c72-b147-b4626d42c534" />
-<img width="192" height="144" alt="rom_slicer_web" src="https://github.com/user-attachments/assets/6b9d3167-27cb-4f1e-a894-d57bac25a85c" />
-<img width="192" height="144" alt="e12_slicer_web" src="https://github.com/user-attachments/assets/9a3e152f-50c7-4b00-a4ab-5e46c36da409" />
+<img width="96" height="72" alt="rom_e12_slicer_web" src="https://github.com/user-attachments/assets/108b719b-0604-4c72-b147-b4626d42c534" />
+<img width="96" height="72" alt="rom_slicer_web" src="https://github.com/user-attachments/assets/6b9d3167-27cb-4f1e-a894-d57bac25a85c" />
+<img width="96" height="72" alt="e12_slicer_web" src="https://github.com/user-attachments/assets/9a3e152f-50c7-4b00-a4ab-5e46c36da409" />
 
 **what it is**
 A transient-detecting sample slicer and looper for the Machinedrum, compatible with the [X.20 firmware](https://github.com/jmamma/MDX) . This is most fun with longer samples but you can also get interesting textural results with shorter ones. the magic comes with plocking the SLNO parameter (slice number!) Not sure how useful this is on just E12. I have a version somewhere that does things like equal and random slices, let me know if you want that.
@@ -60,9 +60,9 @@ A transient-detecting sample slicer and looper for the Machinedrum, compatible w
 ## 2. SMP-ST[RETCH] 
 <img width="1473" height="230" alt="SMP-ST" src="https://github.com/user-attachments/assets/045f9338-a97d-4bf4-b034-74f0a374cc60" />
 
-<img width="192" height="144" alt="SMP-ST_logo_web" src="https://github.com/user-attachments/assets/c44f90f9-0f4b-4b98-adf2-392429df009f" />
-<img width="192" height="144" alt="SMP-SR_logo_web" src="https://github.com/user-attachments/assets/e0e18002-96cc-42d9-9063-f250473682a6" />
-<img width="192" height="144" alt="SMP-S2_logo_web" src="https://github.com/user-attachments/assets/900b2ee1-fe3c-4ba1-8877-fa4ea8fbd853" />
+<img width="96" height="72" alt="SMP-ST_logo_web" src="https://github.com/user-attachments/assets/c44f90f9-0f4b-4b98-adf2-392429df009f" />
+<img width="96" height="72" alt="SMP-SR_logo_web" src="https://github.com/user-attachments/assets/e0e18002-96cc-42d9-9063-f250473682a6" />
+<img width="96" height="72" alt="SMP-S2_logo_web" src="https://github.com/user-attachments/assets/900b2ee1-fe3c-4ba1-8877-fa4ea8fbd853" />
 
 **Known bugs in this version:**
 Infinite decay/timestretch continues when changing to a new pattern with a different kit. to be fixed soon.
