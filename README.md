@@ -24,7 +24,7 @@ To install my *ROM and E12* machines or the ROM-only versions, you’ll need a M
 # **machine descriptions:**
 
 1. SMP-SL[ICE] (to be uploaded soon)
-2. SMP-ST[RETCH]
+2. SMP-ST[RETCH] (BETA)
 
 ## 1. SMP-SL[ICE]
 
@@ -57,7 +57,7 @@ A transient-detecting sample slicer and looper for the Machinedrum, compatible w
 ---
 
 
-## 2. SMP-ST[RETCH] 
+## 2. SMP-ST[RETCH] (BETA)
 <img width="1473" height="230" alt="SMP-ST" src="https://github.com/user-attachments/assets/045f9338-a97d-4bf4-b034-74f0a374cc60" />
 
 <img width="96" height="72" alt="SMP-ST_logo_web" src="https://github.com/user-attachments/assets/c44f90f9-0f4b-4b98-adf2-392429df009f" />
