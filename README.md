@@ -28,7 +28,7 @@ To install my *ROM and E12* machines or the ROM-only versions, you’ll need a M
 
 ## 1. SMP-SL[ICE]
 
-<img width="240.5" height="153" alt="smp-sl pic" src="https://github.com/user-attachments/assets/d1255490-0b5a-4155-bebd-a3be1a904b9d" />\
+<img width="481" height="306" alt="smp-sl pic" src="https://github.com/user-attachments/assets/d1255490-0b5a-4155-bebd-a3be1a904b9d" />\
 
 <img width="96" height="72" alt="rom_e12_slicer_web" src="https://github.com/user-attachments/assets/108b719b-0604-4c72-b147-b4626d42c534" />
 <img width="96" height="72" alt="rom_slicer_web" src="https://github.com/user-attachments/assets/6b9d3167-27cb-4f1e-a894-d57bac25a85c" />
