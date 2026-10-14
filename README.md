@@ -24,7 +24,7 @@ To install my *ROM and E12* machines or the ROM-only versions, you’ll need a M
 # **machine descriptions:**
 
 1. SMP-SL[ICE] (to be uploaded soon)
-2. SMP-ST[RETCH] (BETA)
+2. SMP-ST[RETCH]
 
 ## 1. SMP-SL[ICE]
 
@@ -64,8 +64,7 @@ A transient-detecting sample slicer and looper for the Machinedrum, compatible w
 <img width="96" height="72" alt="SMP-SR_logo_web" src="https://github.com/user-attachments/assets/e0e18002-96cc-42d9-9063-f250473682a6" />
 <img width="96" height="72" alt="SMP-S2_logo_web" src="https://github.com/user-attachments/assets/900b2ee1-fe3c-4ba1-8877-fa4ea8fbd853" />
 
-**Known bugs in this version:**
-Infinite decay/timestretch continues when changing to a new pattern with a different kit. to be fixed soon.
+**NOTE:** Infinite decay/timestretch continues when changing to a new pattern. This can be stopped when the same track receives a new trig.
 
 **what it is**
 A custom sample timestretching machine for the Elektron Machinedrum, compatible with the [X.20 firmware](https://github.com/jmamma/MDX). I wanted to make an homage to the Ableton texture warp mode: that gritty, Akai S950 kind of timestretch sound. This machine is focused on the textural exploration of slowing down the sample and altering the grain size and flux (jitter of grains). There are **3 versions depending on compatibility and/or your preferred use case (see dl links below):** one that addreses samples in UW ROM and E12, one for just the UW ROM, and one that just looks at *internal* E12 samples (the latter being compatible with all models). 
