@@ -43,8 +43,6 @@ There are 3 versions:
 -SMP-SM - just rom (UW only)
 -SMP-SN - just E12 (compatible with all models)
 
-**NOTE:** Infinite decay/timestretch continues when changing to a new pattern. This can be stopped when the same track receives a new trig. Note as well that until a new trig comes in the new pattern, the repeating sound from the previous pattern will take on the LEV of the new track (keeping them the same will not cause any level changes when switching patterns).
-
 **parameters**:\
 **PTCH** - half a semitone per step (±32 semitones). It changes speed as well. This interacts with TIME in interesting ways.
 
@@ -53,6 +51,8 @@ There are 3 versions:
 **DEC -** 0: plays the slice once at full level. 1–126: decay from about 0.03 s to 30 s, with the slice looping in the PLAY direction while it’s audible. 127: no decay, loops forever.
 
 **TIME** - 0: normal playback. Above 0, slows the slice down without changing pitch, using a timestretching algorithm. 42: half speed. After 50% turn, grain sizes get smaller127: frozen in place (infinite repeat). DEC at 0 means no amp envelope on the time, decay at higher levels, there is.
+
+ - **NOTE:** Infinite decay continues when changing to a new pattern. This can be stopped when the same track receives a new trig. Note as well that until a new trig comes in the new pattern, the repeating sound from the previous pattern will take on the LEV of the new track (keeping them the same will not cause any level changes when switching patterns).
 
 **PLAY** - Direction of playback. FWD: forwards. REV: backwards. BI: turns round at each end of the slice. When DEC loops, it’s checked at every loop, so you can change it while a slice is held.
 
@@ -73,7 +73,7 @@ There are 3 versions:
 <img width="96" height="72" alt="SMP-S2_logo_web" src="https://github.com/user-attachments/assets/900b2ee1-fe3c-4ba1-8877-fa4ea8fbd853" />
 
 **what it is**
-A custom sample timestretching machine for the Elektron Machinedrum, compatible with the [X.20 firmware](https://github.com/jmamma/MDX). I wanted to make an homage to the Ableton texture warp mode: that gritty, Akai S950 kind of timestretch sound. This machine is focused on the textural exploration of slowing down the sample and altering the grain size and flux (jitter of grains). There are **3 versions depending on compatibility and/or your preferred use case:** one that addreses samples in UW ROM and E12 (SMP-ST), one for just the UW ROM (SMP-SR), and one that just looks at *internal* E12 samples (SMP-S2, compatible with all models).
+A custom sample timestretching machine for the Elektron Machinedrum, compatible with the [X.20 firmware](https://github.com/jmamma/MDX). I wanted to make an homage to the Ableton texture warp mode: that gritty, Akai S950 kind of timestretch sound. This machine is focused on the textural exploration of slowing down the sample and altering the grain size and flux (jitter of grains). There are **3 versions depending on compatibility and/or your preferred use case:** one that addresses samples in UW ROM and E12 (SMP-ST), one for just the UW ROM (SMP-SR), and one that just looks at *internal* E12 samples (SMP-S2, compatible with all models).
 
 **NOTE:** Infinite decay/timestretch continues when changing to a new pattern. This can be stopped when the same track receives a new trig. Note as well that until a new trig comes in the new pattern, the repeating sound from the previous pattern will take on the LEV of the new track (keeping them the same will not cause any level changes when switching patterns).
 
@@ -106,6 +106,8 @@ An experimental granulator machine for the Elektron Machinedrum, compatible with
 - SMP-G2: E12 samples 1–21.
 
 **DEC (decay):** Overall amplitude decay. The time to fade out ranges from about 30 ms to 30 s, and 127 holds the sound forever. The default is 64, about 1 second. Grains continue for as long as the sound lasts and loop back around again. This behavior is great with longer samples and loops.
+
+ - **NOTE:** Infinite decay continues when changing to a new pattern. This can be stopped when the same track receives a new trig. Note as well that until a new trig comes in the new pattern, the repeating sound from the previous pattern will take on the LEV of the new track (keeping them the same will not cause any level changes when switching patterns).
 
 **DENS (density):** Number of grains playing at once, on average, from 0.5 (sparse, with gaps) to 3. Up to about DENS 49, grains play one at a time at full quality (44.1 kHz). Above that, they overlap at half rate (22 kHz), up to 3 at a time at maximum. Volume is adjusted so busier settings don’t get louder.
 
