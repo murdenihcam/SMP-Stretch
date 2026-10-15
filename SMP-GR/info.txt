@@ -1,0 +1,10 @@
+SMP-GR granular machines, v0.5
+
+SMP-GR_allbanks  ROM+E12 GRANULAR  UW ROM 1..48 then E1..E21   (build name: granular)
+SMP-GM_rom       ROM GRANULAR      UW ROM 1..48                (build name: rom_granular)
+SMP-G2_e12       E12 GRANULAR      internal E12 1..21          (build name: e12_granular)
+
+Each folder: .syx to send to the Machinedrum, .mds package, .json definition, .asm56k wrapper,
+.pbm sprite, the 32x24 logo and a web logo (black on #CD2824).
+source/: shared engine (granular_engine.inc), generated includes and the Python tools.
+The builds were made in C:\work\granular under the build names above.

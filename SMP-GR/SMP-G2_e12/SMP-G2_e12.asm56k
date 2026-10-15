@@ -1,0 +1,4 @@
+; SMP-G2: granular player for the internal (E12) samples only.
+; The engine is shared with SMP-GR; see granular_engine.inc.
+BANK_ID equ 0                   ; SAMPLE_INFO / SAMPLE_READ bank: INTERNAL
+        include 'granular_engine.inc'

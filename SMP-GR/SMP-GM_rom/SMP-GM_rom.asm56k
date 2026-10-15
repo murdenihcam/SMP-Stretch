@@ -1,0 +1,4 @@
+; SMP-GM: granular player for the UW ROM samples only.
+; The engine is shared with SMP-GR; see granular_engine.inc.
+BANK_ID equ 1                   ; SAMPLE_INFO / SAMPLE_READ bank: USERWAVE
+        include 'granular_engine.inc'

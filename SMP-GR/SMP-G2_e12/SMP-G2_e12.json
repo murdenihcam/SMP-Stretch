@@ -1,0 +1,85 @@
+{
+  "id": "org.example.e12-granular",
+  "display_name": "E12 GRANULAR",
+  "category": "SMP",
+  "short_label": "G2",
+  "machine_version": "0.5",
+  "params": [
+    {
+      "name": "PTCH",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "SMPL",
+      "default": 1,
+      "min": 1,
+      "max": 21,
+      "transform": "index"
+    },
+    {
+      "name": "DEC",
+      "default": 64,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "DENS",
+      "default": 64,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "SEEK",
+      "default": 0,
+      "transform": "unipolar_q23"
+    },
+    {
+      "name": "SCAN",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "GRAN",
+      "default": 64,
+      "transform": "raw14",
+      "control": "continuous"
+    },
+    {
+      "name": "SPRY",
+      "default": 0,
+      "transform": "raw14",
+      "control": "continuous"
+    }
+  ],
+  "program": {
+    "x_workset_words": 32,
+    "y_workset_words": 56,
+    "relocations": [
+      "TABLE_BASE",
+      "TABLE_BASE2"
+    ],
+    "imports": [
+      {
+        "symbol": "POS_ADDR",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "READ_SAMPLES",
+        "abi_symbol": 10
+      },
+      {
+        "symbol": "PCM_ADDR",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "TRIG_INFO",
+        "abi_symbol": 9
+      }
+    ]
+  },
+  "max_track_cycles": 3900,
+  "description": "Granular player for the internal E12 samples (SMPL 1..21): up to 3 grains with smoothstep fades; DENS grains at once (full rate up to 1, then half rate, within the cycle budget), GRAN grain length, SEEK start, SCAN playhead speed (64 = still), SPRY random position and reverse chance, PTCH +-32 semitones, DEC decay (127 = none); same engine as SMP-GR"
+}
