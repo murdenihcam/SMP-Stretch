@@ -74,8 +74,8 @@ A custom sample timestretching machine for the Elektron Machinedrum, compatible 
 **parameters**
 Here you get a SMPL knob for selecting the respective sample slot to address (plockable of course) -- another side benefit of this is you don't have to dig thru ROM/E12 to find your sample, a DECay, the TIME knob, which starts at no stretch and increases to infinite freeeeeeeeeeze. GRAN and FLUX are designed to work like ableton's texture warp, and unlike in Ableton, we can actually modulate these params!!! have fun sssttrrreeeetttttccccchhhhiiiiiiiiiiiinnnnnggggggggg
 
-<img width="375" height="516" alt="cd4e9815e1427f9ffd8483e6518562df343691ba_2_750x1000" src="https://github.com/user-attachments/assets/66674c9e-df71-4509-8130-aabe4dc5b014" />
 ---
+
 ## 3. SMP-GR[ANULATOR]
 
 **what it is**
