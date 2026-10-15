@@ -77,7 +77,7 @@ Here you get a SMPL knob for selecting the respective sample slot to address (pl
 ---
 
 ## 3. SMP-GR[ANULATOR]
-<img width="1112" height="550" alt="SMP-GR" src="https://github.com/user-attachments/assets/cd42a033-916b-4d8d-b57e-77ed36815cac" />
+<img width="556" height="225" alt="SMP-GR" src="https://github.com/user-attachments/assets/cd42a033-916b-4d8d-b57e-77ed36815cac" />
 
 **what it is**
 An experimental granulator machine for the Elektron Machinedrum, compatible with the X.20 firmware
