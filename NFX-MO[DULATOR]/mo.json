@@ -1,0 +1,170 @@
+{
+  "id": "org.example.nfx-mo",
+  "display_name": "SPACE MOD",
+  "category": "NFX",
+  "short_label": "MO",
+  "machine_version": "0.10",
+  "retrigger": "continuous",
+  "neighbour": true,
+  "description": "Modulated delay on the track before, wet only (blend with the track levels). MODE SPIN pitch-shifting delay (RATE: +-12 semitones, 64 = none; repeats spiral with FB), FLNG flanger, CHOR 3-tap chorus after the Monomachine (RATE = SPD 0.05-10 Hz, FB up to 0.98), DBLR doubler, BODE frequency-shifting delay (RATE: +-1 kHz; DPTH 0 ring modulation ... 127 pure shift). FB up to self-oscillation, SPRD spread, ENTI: a delay envelope fired by TRIG (right: longer then back, left: shorter then back; further = slower; 64 off), DLAY base delay, NBAL blends the track before (right) and two before (left). This build: smooth feedback saturation.",
+  "params": [
+    {
+      "name": "MODE",
+      "default": 0,
+      "min": 0,
+      "max": 4,
+      "transform": "index",
+      "value_text": [
+        {
+          "value": 0,
+          "text": "SPIN"
+        },
+        {
+          "value": 1,
+          "text": "FLNG"
+        },
+        {
+          "value": 2,
+          "text": "CHOR"
+        },
+        {
+          "value": 3,
+          "text": "DBLR"
+        },
+        {
+          "value": 4,
+          "text": "BODE"
+        }
+      ]
+    },
+    {
+      "name": "RATE",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "DPTH",
+      "default": 64,
+      "transform": "unipolar_q23"
+    },
+    {
+      "name": "FB",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "SPRD",
+      "default": 64,
+      "transform": "unipolar_q23"
+    },
+    {
+      "name": "ENTI",
+      "default": 64,
+      "transform": "raw14",
+      "control": "bipolar"
+    },
+    {
+      "name": "DLAY",
+      "default": 40,
+      "transform": "unipolar_q23"
+    },
+    {
+      "name": "NBAL",
+      "default": 127,
+      "transform": "bipolar_q23"
+    }
+  ],
+  "program": {
+    "x_workset_words": 57,
+    "y_workset_words": 64,
+    "relocations": [
+      "RATE_ADDR",
+      "FB_ADDR",
+      "SLOPE_ADDR",
+      "HILB_ADDR",
+      "BODE_ADDR",
+      "ENV_ADDR",
+      "NBAL_ADDR",
+      "NBAL2_ADDR",
+      "SPD_ADDR",
+      "CFB_ADDR"
+    ],
+    "imports": [
+      {
+        "symbol": "X_TAP",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "X_HA0",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "Y_HA5",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "Y_HB4",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "Y_HC5",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "Y_HD4",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "X_HE0",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "Y_HE5",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "X_HT",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "Y_HF4",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "X_HF5",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "X_HG0",
+        "abi_symbol": 7
+      },
+      {
+        "symbol": "Y_HG5",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "Y_MQ3",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "Y_MW5",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "Y_BW4",
+        "abi_symbol": 8
+      },
+      {
+        "symbol": "TM_CHK",
+        "abi_symbol": 6
+      },
+      {
+        "symbol": "TRACK_MEMORY",
+        "abi_symbol": 6
+      }
+    ]
+  },
+  "max_track_cycles": 3925
+}
