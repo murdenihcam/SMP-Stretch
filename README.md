@@ -88,6 +88,8 @@ Here you get a SMPL knob for selecting the respective sample slot to address (pl
 **what it is**
 An experimental granulator machine for the Elektron Machinedrum, compatible with the X.20 firmware
 
+**NOTE:** Infinite decay/timestretch continues when changing to a new pattern. This can be stopped when the same track receives a new trig. Note as well that until a new trig comes in the new pattern, the repeating sound from the previous pattern will take on the LEV of the new track (keeping them the same will not cause any level changes when switching patterns).
+
 **parameters**
 
 **PTCH (pitch):** Playback pitch of the grains, in half-semitone steps. 64 is the original pitch, and the full range is ±32 semitones. Pitch modulation (LFO) also moves in half-semitone steps. Pitch doesn’t change scan speed or grain length.
