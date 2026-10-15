@@ -124,7 +124,7 @@ A multi-mode modulation effect, covering flanger, chorus, pitch and frequency sh
 **MODE** - Toggles between 5 modes:
 
 - **SPIN:** pitch-shifting delay. Feedback introduces spiral to the repeats. I love this one.
-- FLNG:** flanger
+- **FLNG:** flanger
 - **CHOR:** three-voice chorus (three taps 120° apart, feedback from all three). Low RATE with high FB gives a lovely clangy sound.
 - **DBLR:** doubler: two slow, uneven, slightly detuned voices
 - **BODE:** Bode shifter, a frequency shifting delay, causing clangy, inharmonic spirals. Another really exciting one.
