@@ -66,7 +66,7 @@ There are 3 versions:
 
 
 ## 2. SMP-ST[RETCH] 
-<img width="1473" height="230" alt="SMP-ST" src="https://github.com/user-attachments/assets/045f9338-a97d-4bf4-b034-74f0a374cc60" />
+<img width="1473" height="230" alt="SMP-ST" src="https://github.com/user-attachments/assets/045f9338-a97d-4bf4-b034-74f0a374cc60" />\
 
 <img width="96" height="72" alt="SMP-ST_logo_web" src="https://github.com/user-attachments/assets/c44f90f9-0f4b-4b98-adf2-392429df009f" />
 <img width="96" height="72" alt="SMP-SR_logo_web" src="https://github.com/user-attachments/assets/e0e18002-96cc-42d9-9063-f250473682a6" />
@@ -83,7 +83,12 @@ Here you get a SMPL knob for selecting the respective sample slot to address (pl
 ---
 
 ## 3. SMP-GR[ANULATOR]
-<img width="556" height="225" alt="SMP-GR" src="https://github.com/user-attachments/assets/cd42a033-916b-4d8d-b57e-77ed36815cac" />
+<img width="556" height="225" alt="SMP-GR" src="https://github.com/user-attachments/assets/cd42a033-916b-4d8d-b57e-77ed36815cac" />\
+
+<img width="96" height="72" alt="SMP-GR_allbanks_web" src="https://github.com/user-attachments/assets/cfb39bdc-531a-4029-a639-638a4ca69ab5" />
+<img width="96" height="72" alt="SMP-GM_rom_web" src="https://github.com/user-attachments/assets/063237c6-50d2-413e-8432-07ebcc7f4194" />
+<img width="96" height="72" alt="SMP-G2_e12_web" src="https://github.com/user-attachments/assets/a3db6dfb-8d49-478f-b1dc-bf4a196dc1f1" />
+
 
 **what it is**
 An experimental granulator machine for the Elektron Machinedrum, compatible with the X.20 firmware
@@ -115,7 +120,9 @@ An experimental granulator machine for the Elektron Machinedrum, compatible with
 ---
 ## 3. NFX-MO[DULATOR]
 
-<img width="431.5" height="196" alt="nfx-mo" src="https://github.com/user-attachments/assets/40ac44f0-23ee-4f05-8573-e42ddc7eb9a7" />
+<img width="431.5" height="196" alt="nfx-mo" src="https://github.com/user-attachments/assets/40ac44f0-23ee-4f05-8573-e42ddc7eb9a7" />\
+
+<img width="96" height="72" alt="nfx-mo_web" src="https://github.com/user-attachments/assets/eb48353e-7ac2-4869-ac7d-fd29e3994dac" />
 
 **what it is**
 A multi-mode modulation effect, covering flanger, chorus, pitch and frequency shifting delays. Wild and exciting textural results abound: lots to explore and many spiralling sweet spots on this. 
