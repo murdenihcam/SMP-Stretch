@@ -37,10 +37,10 @@ To install my *ROM and E12* machines or the ROM-only versions, you’ll need a M
 
 **what it is**
 A transient-detecting sample slicer and looper for the Machinedrum, compatible with the [X.20 firmware](https://github.com/jmamma/MDX) . This is most fun with longer samples but you can also get interesting textural results with shorter ones. the magic comes with plocking the SLNO parameter (slice number!) Not sure how useful this is on just E12. I have a version somewhere that does things like equal and random slices, let me know if you want that.
-
-SMP-SL - all banks (UW only)
-SMP-SM - just rom (UW only)
-SMP-SN - just E12 (compatible with all models)
+There are 3 versions:
+-SMP-SL - all banks (UW only)
+-SMP-SM - just rom (UW only)
+-SMP-SN - just E12 (compatible with all models)
 
 **NOTE:** Infinite decay/timestretch continues when changing to a new pattern. This can be stopped when the same track receives a new trig. Note as well that until a new trig comes in the new pattern, the repeating sound from the previous pattern will take on the LEV of the new track (keeping them the same will not cause any level changes when switching patterns).
 
