@@ -1,0 +1,8 @@
+; SMP-SL "ROM+E12 SLICER" v0.5: transient slicer, TIME also shortening the grains
+; above half way. SMPL 1..48 are UW ROM slots, E1..E21 the internal samples.
+BANK_ID  equ -1
+UW_SLOTS equ 48
+TIME_ST  equ 1
+TRANS    equ 1
+TIME_GRAN equ 1
+        include 'slicer_engine.inc'

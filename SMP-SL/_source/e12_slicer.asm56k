@@ -1,0 +1,6 @@
+; SMP-SN "E12 SLICER" v0.5: SMP-SL for the internal (E12) samples only (SMPL E1..E21).
+BANK_ID  equ 0
+TIME_ST  equ 1
+TRANS    equ 1
+TIME_GRAN equ 1
+        include 'slicer_engine.inc'
